@@ -13,14 +13,40 @@ use App\Http\Controllers\DebtController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/admin', function () {
-    return view('admin.dashboard');
-})->middleware(['auth', 'verified', 'admin'])->name('admin.dashboard');
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\StatisticsController;
+use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\PremiumController;
+use App\Http\Controllers\Admin\AppearanceController;
+use App\Http\Controllers\Admin\AdminSettingsController;
+use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\AccountController;
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
+    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+    Route::get('/premium', [PremiumController::class, 'index'])->name('premium');
+    Route::get('/appearance', [AppearanceController::class, 'index'])->name('appearance');
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
+    Route::get('/security', [SecurityController::class, 'index'])->name('security');
+    Route::get('/account', [AccountController::class, 'index'])->name('account');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/expenses/add', [ExpenseController::class, 'create'])->name('expenses.create');

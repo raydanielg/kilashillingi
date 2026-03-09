@@ -134,11 +134,11 @@ return [
     */
 
     'usermenu_enabled' => true,
-    'usermenu_header' => false,
-    'usermenu_header_class' => 'bg-primary',
-    'usermenu_image' => false,
-    'usermenu_desc' => false,
-    'usermenu_profile_url' => false,
+    'usermenu_header' => true,
+    'usermenu_header_class' => 'bg-emerald-900',
+    'usermenu_image' => true,
+    'usermenu_desc' => true,
+    'usermenu_profile_url' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -301,40 +301,85 @@ return [
     'menu' => [
         // Navbar items:
         [
-            'type' => 'navbar-search',
-            'text' => 'messages.search',
+            'type'         => 'navbar-search',
+            'text'         => 'search',
             'topnav_right' => true,
         ],
         [
-            'type' => 'fullscreen-widget',
+            'type'         => 'fullscreen-widget',
             'topnav_right' => true,
         ],
 
         // Sidebar items:
         [
             'type' => 'sidebar-menu-search',
-            'text' => 'messages.search',
+            'text' => 'search',
         ],
         [
-            'text' => 'messages.dashboard',
-            'url' => 'dashboard',
+            'header' => 'MAIN NAVIGATION',
+        ],
+        [
+            'text' => 'Dashibodi',
+            'url'  => 'admin',
             'icon' => 'fas fa-fw fa-tachometer-alt',
         ],
         [
-            'text' => 'messages.transactions',
-            'url' => 'transactions',
-            'icon' => 'fas fa-fw fa-exchange-alt',
+            'text' => 'Watumiaji',
+            'url'  => 'admin/users',
+            'icon' => 'fas fa-fw fa-users',
         ],
         [
-            'text' => 'messages.debts',
-            'url' => 'debts',
-            'icon' => 'fas fa-fw fa-hand-holding-usd',
+            'text' => 'Malipo',
+            'url'  => 'admin/payments',
+            'icon' => 'fas fa-fw fa-credit-card',
         ],
-        ['header' => 'messages.account_settings'],
         [
-            'text' => 'messages.profile',
-            'url' => 'profile',
+            'text' => 'Takwimu',
+            'url'  => 'admin/statistics',
+            'icon' => 'fas fa-fw fa-chart-bar',
+        ],
+        [
+            'text' => 'Ripoti',
+            'url'  => 'admin/reports',
+            'icon' => 'fas fa-fw fa-file-invoice',
+        ],
+        [
+            'text' => 'Kategoria',
+            'url'  => 'admin/categories',
+            'icon' => 'fas fa-fw fa-tags',
+        ],
+        [
+            'text' => 'Matangazo',
+            'url'  => 'admin/announcements',
+            'icon' => 'fas fa-fw fa-bullhorn',
+        ],
+        [
+            'text' => 'Premium',
+            'url'  => 'admin/premium',
+            'icon' => 'fas fa-fw fa-star',
+        ],
+        [
+            'header' => 'ACCOUNT & SYSTEM',
+        ],
+        [
+            'text' => 'Profaili',
+            'url'  => 'admin/account',
             'icon' => 'fas fa-fw fa-user',
+        ],
+        [
+            'text' => 'Mipangilio',
+            'url'  => 'admin/settings',
+            'icon' => 'fas fa-fw fa-cogs',
+        ],
+        [
+            'text' => 'User Panel',
+            'url'  => 'dashboard',
+            'icon' => 'fas fa-fw fa-home',
+        ],
+        [
+            'text' => 'Usalama',
+            'url'  => 'admin/security',
+            'icon' => 'fas fa-fw fa-shield-alt',
         ],
     ],
 
