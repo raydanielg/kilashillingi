@@ -72,4 +72,19 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    public function adminlte_image()
+    {
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=random';
+    }
+
+    public function adminlte_desc()
+    {
+        return $this->role === 'admin' ? 'Msimamizi wa Mfumo' : 'Mtumiaji wa Mfumo';
+    }
+
+    public function adminlte_profile_url()
+    {
+        return 'admin/account';
+    }
 }
