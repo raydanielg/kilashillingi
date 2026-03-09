@@ -33,14 +33,14 @@
     <!-- Email or Phone -->
     <div>
         <label for="login" class="block text-sm font-bold text-[#111827] mb-2 uppercase tracking-wide">
-            {{ trans('messages.email') }} / {{ trans('messages.phone') }}
+            Namba ya Simu
         </label>
         <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <i class="fa-regular fa-user text-gray-400"></i>
+                <i class="fa-solid fa-phone text-gray-400"></i>
             </div>
             <input id="login" type="text" name="login" value="{{ old('login') }}" required autofocus
-                   placeholder="jina@mfano.com au 07XXXXXXXX"
+                   placeholder="07XXXXXXXX"
                    class="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none transition text-gray-900 @error('login') border-red-500 @enderror">
         </div>
         @error('login')
