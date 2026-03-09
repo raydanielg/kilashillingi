@@ -19,7 +19,10 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $usersCount = User::count();
+        $displayUsers = User::orderBy('created_at', 'desc')->take(4)->get();
+
+        return view('auth.register', compact('usersCount', 'displayUsers'));
     }
 
     /**

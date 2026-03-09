@@ -5,7 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'KilaShillingi') }}</title>
+    <!-- SEO & Social Media Optimization -->
+    <title>@yield('title', config('app.name', 'KilaShillingi')) - Simamia Fedha zako kwa Usahihi</title>
+    <meta name="description" content="KilaShillingi ni mfumo bora wa kusimamia mapato, matumizi, bajeti na madeni kwa Watanzania. Rekodi kila shillingi na imarisha uchumi wako leo.">
+    <meta name="keywords" content="fedha, usimamizi wa fedha, bajeti, mhasibu, Tanzania, matumizi, mapato, madeni, KilaShillingi, akiba">
+    <meta name="author" content="KilaShillingi">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="KilaShillingi - Mfumo wa Usimamizi wa Fedha Tanzania">
+    <meta property="og:description" content="Mfumo rahisi uliotengenezwa mahususi kwa ajili ya usimamizi wa fedha za kila siku nchini Tanzania.">
+    <meta property="og:image" content="{{ asset('xing_5968847.png') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="KilaShillingi - Simamia Fedha zako kwa Usahihi">
+    <meta property="twitter:description" content="Mfumo rahisi uliotengenezwa mahususi kwa ajili ya usimamizi wa fedha za kila siku nchini Tanzania.">
+    <meta property="twitter:image" content="{{ asset('xing_5968847.png') }}">
 
     <link rel="icon" type="image/png" href="{{ asset('xing_5968847.png') }}">
 

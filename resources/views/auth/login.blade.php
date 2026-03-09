@@ -13,7 +13,21 @@
 @endsection
 
 @section('content')
-<form method="POST" action="{{ route('login') }}" class="space-y-6">
+    @if (session('status'))
+        <div class="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-bold flex items-center gap-3">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ session('status') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold flex items-center gap-3">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            Imetokea hitilafu. Tafadhali kagua taarifa zako.
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" class="space-y-6">
     @csrf
 
     <!-- Email or Phone -->

@@ -12,6 +12,10 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DebtController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\SitemapController;
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
 Route::get('/', function () {
     return redirect()->route('login');
 });

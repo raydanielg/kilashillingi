@@ -3,7 +3,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'KilaShillingi') }}</title>
+    <!-- Primary Meta Tags -->
+    <title>{{ $title ?? 'KilaShillingi - Simamia Fedha zako kwa Usahihi' }}</title>
+    <meta name="title" content="{{ $title ?? 'KilaShillingi - Mfumo wa Usimamizi wa Fedha Tanzania' }}">
+    <meta name="description" content="KilaShillingi ni mfumo bora wa kusimamia mapato, matumizi, bajeti na madeni kwa Watanzania. Rekodi kila shillingi na imarisha uchumi wako leo.">
+    <meta name="keywords" content="fedha, usimamizi wa fedha, bajeti, mhasibu, Tanzania, matumizi, mapato, madeni, KilaShillingi, akiba">
+    <meta name="author" content="KilaShillingi">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $title ?? 'KilaShillingi - Simamia Fedha zako kwa Usahihi' }}">
+    <meta property="og:description" content="Mfumo rahisi uliotengenezwa mahususi kwa ajili ya usimamizi wa fedha za kila siku nchini Tanzania.">
+    <meta property="og:image" content="{{ asset('xing_5968847.png') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ $title ?? 'KilaShillingi - Simamia Fedha zako kwa Usahihi' }}">
+    <meta property="twitter:description" content="Mfumo rahisi uliotengenezwa mahususi kwa ajili ya usimamizi wa fedha za kila siku nchini Tanzania.">
+    <meta property="twitter:image" content="{{ asset('xing_5968847.png') }}">
+
     <link rel="icon" type="image/png" href="{{ asset('xing_5968847.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +42,7 @@
                 <div class="p-8 md:p-10">
                     @yield('auth_header')
 
-                    @php($showSocial = $showSocial ?? true)
+                    @php($showSocial = $showSocial ?? false)
                     @if ($showSocial)
                         <!-- Social Login Mockup -->
                         <div class="grid grid-cols-2 gap-4 mb-8">
@@ -69,6 +90,28 @@
                     Mfumo rahisi uliotengenezwa mahususi kwa ajili ya usimamizi wa fedha za kila siku. Rekodi kila shillingi, fuatilia madeni, na panga bajeti yako kwa urahisi.
                 </p>
 
+                <div class="flex flex-col gap-6 mb-12">
+                    <div class="flex items-center -space-x-3 overflow-hidden">
+                        @foreach($displayUsers as $u)
+                            <img class="inline-block h-12 w-12 rounded-full ring-2 ring-[#059669] bg-gray-200" 
+                                 src="https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background=random&color=fff" 
+                                 alt="{{ $u->name }}">
+                        @endforeach
+                        @if($usersCount > $displayUsers->count())
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full ring-2 ring-[#059669] bg-emerald-800 text-white text-xs font-bold">
+                                +{{ $usersCount - $displayUsers->count() }}
+                            </div>
+                        @endif
+                    </div>
+                    <p class="text-white font-semibold text-lg">
+                        @if($usersCount > 0)
+                            Zaidi ya watumiaji <span class="text-emerald-200 font-extrabold">{{ $usersCount }}+</span> kutoka Tanzania 🇹🇿 wamejiunga.
+                        @else
+                            Kuwa wa kwanza kujiunga kutoka Tanzania 🇹🇿.
+                        @endif
+                    </p>
+                </div>
+
                 <div class="grid grid-cols-2 gap-8">
                     <div>
                         <h4 class="text-white font-bold text-xl mb-2">100% Salama</h4>
@@ -78,16 +121,6 @@
                         <h4 class="text-white font-bold text-xl mb-2">Muda Halisi</h4>
                         <p class="text-white/60 text-sm">Pata muhtasari wa miamala yako papo hapo ukiwa popote na kifaa chochote.</p>
                     </div>
-                </div>
-            </div>
-
-            <div class="relative z-10 mt-16 pt-12 border-t border-white/10">
-                <p class="text-white/40 text-xs uppercase tracking-widest font-bold mb-4">IMEOAMINIWA NA WATUMIAJI WENGI</p>
-                <div class="flex gap-4 opacity-50 filter grayscale">
-                    <!-- Placeholder logos -->
-                    <div class="h-6 w-24 bg-white/20 rounded"></div>
-                    <div class="h-6 w-24 bg-white/20 rounded"></div>
-                    <div class="h-6 w-24 bg-white/20 rounded"></div>
                 </div>
             </div>
         </div>
