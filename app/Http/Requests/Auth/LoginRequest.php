@@ -41,25 +41,35 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $login = preg_replace('/\s+/', '', (string) $this->input('login'));
+        $login = $this->input('login');
+        $password = $this->input('password');
+        $remember = $this->boolean('remember');
 
-        $loginPhone = $login;
-        if (preg_match('/^0[67]\d{8}$/', $login)) {
-            $loginPhone = '255'.substr($login, 1);
+        // Jaribu kwanza kama email
+        if (Auth::attempt(['email' => $login, 'password' => $password], $remember)) {
+            RateLimiter::clear($this->throttleKey());
+            return;
         }
 
-        $credentialsEmail = ['email' => $login, 'password' => $this->input('password')];
-        $credentialsPhone = ['phone' => $loginPhone, 'password' => $this->input('password')];
-
-        if (! Auth::attempt($credentialsEmail, $this->boolean('remember')) && ! Auth::attempt($credentialsPhone, $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'login' => trans('auth.failed'),
-            ]);
+        // Kama siyo email, jaribu kama namba ya simu
+        // Safisha namba (ondoa nafasi n.k)
+        $phone = preg_replace('/\D/', '', (string) $login);
+        
+        // Geuza 0... kuwa 255...
+        if (str_starts_with($phone, '0')) {
+            $phone = '255' . substr($phone, 1);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        if (Auth::attempt(['phone' => $phone, 'password' => $password], $remember)) {
+            RateLimiter::clear($this->throttleKey());
+            return;
+        }
+
+        RateLimiter::hit($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'login' => trans('auth.failed'),
+        ]);
     }
 
     /**

@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -51,6 +54,12 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($user));
+        } catch (\Exception $e) {
+            \Log::error("Welcome email failed for {$user->email}: " . $e->getMessage());
+        }
 
         Auth::login($user);
 
