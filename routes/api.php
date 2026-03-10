@@ -9,12 +9,14 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\BudgetController;
+use App\Http\Controllers\Api\PasswordResetController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/meta/currencies', [MetaController::class, 'currencies']);
 
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/forgot-password', [PasswordResetController::class, 'sendResetLink']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);

@@ -38,11 +38,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final currenciesAsync = ref.watch(currenciesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Fungua Akaunti')),
+      appBar: AppBar(
+        title: const Text('Fungua Akaunti'),
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_ios_new),
+        ),
+      ),
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(context).viewInsets.bottom),
           children: [
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset('assets/app_icon.png', width: 44, height: 44, fit: BoxFit.cover),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'KilaShillingi',
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
             Text(
               'Anza safari yako',
               style: theme.textTheme.headlineSmall?.copyWith(
@@ -167,6 +187,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       )
                     : const Text('Jisajili'),
               ),
+            ),
+
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Tayari una akaunti? '),
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Ingia'),
+                ),
+              ],
             ),
           ],
         ),

@@ -49,4 +49,13 @@ class AuthRepository {
   Future<void> logout() async {
     await _dio.post('/v1/auth/logout');
   }
+
+  Future<void> forgotPassword({required String email}) async {
+    await _dio.post(
+      '/v1/auth/forgot-password',
+      data: {
+        'email': email,
+      },
+    );
+  }
 }

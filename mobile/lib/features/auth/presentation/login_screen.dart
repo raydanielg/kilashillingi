@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth_controller.dart';
+import 'auth_state.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +17,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordCtrl = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authStateProvider.notifier).bootstrap();
+    });
+  }
+
+  @override
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
@@ -26,6 +36,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = ref.watch(authStateProvider);
+
+    ref.listen(authStateProvider, (previous, next) {
+      if (!mounted) return;
+      if (next.status == AuthStatus.authenticated) {
+        context.go('/dashboard');
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -40,6 +57,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset('assets/app_icon.png', width: 44, height: 44, fit: BoxFit.cover),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'KilaShillingi',
+                            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
                       Text(
                         'Karibu tena',
                         style: theme.textTheme.headlineMedium?.copyWith(
@@ -73,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           labelText: 'Email',
-                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.email_outlined),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -82,7 +113,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Password',
-                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.lock_outline),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => context.push('/forgot-password'),
+                          child: const Text('Forgot password?'),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -116,7 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         children: [
                           const Text('Huna akaunti? '),
                           TextButton(
-                            onPressed: () => context.go('/register'),
+                            onPressed: () => context.push('/register'),
                             child: const Text('Jisajili'),
                           ),
                         ],
