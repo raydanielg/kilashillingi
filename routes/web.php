@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')-
     Route::get('/premium', [PremiumController::class, 'index'])->name('premium');
     Route::get('/appearance', [AppearanceController::class, 'index'])->name('appearance');
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings');
+    Route::post('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
     Route::get('/security', [SecurityController::class, 'index'])->name('security');
     Route::get('/account', [AccountController::class, 'index'])->name('account');
 });

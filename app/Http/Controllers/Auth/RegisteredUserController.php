@@ -42,8 +42,12 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $phone = preg_replace('/\s+/', '', (string) $request->phone);
-        $phone = '255'.substr($phone, 1);
+        $phone = preg_replace('/[^0-9]/', '', (string) $request->phone);
+        if (str_starts_with($phone, '0')) {
+            $phone = '255' . substr($phone, 1);
+        } elseif (str_starts_with($phone, '7') || str_starts_with($phone, '6')) {
+            $phone = '255' . $phone;
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -55,13 +59,15 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        Auth::login($user);
+
         try {
-            Mail::to($user->email)->send(new WelcomeEmail($user));
+            if (config('mail.mailers.smtp.host')) {
+                Mail::to($user->email)->send(new WelcomeEmail($user));
+            }
         } catch (\Exception $e) {
             \Log::error("Welcome email failed for {$user->email}: " . $e->getMessage());
         }
-
-        Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
     }
