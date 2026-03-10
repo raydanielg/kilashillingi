@@ -33,7 +33,7 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Salio la sasa</div>
-                    <div class="mt-2 text-3xl font-extrabold {{ ($balance ?? 0) >= 0 ? 'text-emerald-800' : 'text-red-700' }}">TSh {{ number_format($balance ?? 0, 2) }}</div>
+                    <div class="mt-2 text-3xl font-extrabold {{ ($balance ?? 0) >= 0 ? 'text-emerald-800' : 'text-red-700' }}">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($balance ?? 0, 2) }}</div>
                     <div class="mt-2 text-sm text-gray-500">Muhtasari wa mwezi huu</div>
                 </div>
                 <div class="flex gap-3">
@@ -45,11 +45,11 @@
             <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
                     <div class="text-xs font-extrabold text-emerald-900 uppercase tracking-widest">Mapato ya mwezi huu</div>
-                    <div class="mt-2 text-2xl font-extrabold text-emerald-800">TSh {{ number_format($monthIncome ?? 0, 2) }}</div>
+                    <div class="mt-2 text-2xl font-extrabold text-emerald-800">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($monthIncome ?? 0, 2) }}</div>
                 </div>
                 <div class="p-5 rounded-2xl bg-red-50 border border-red-100">
                     <div class="text-xs font-extrabold text-red-800 uppercase tracking-widest">Matumizi ya mwezi huu</div>
-                    <div class="mt-2 text-2xl font-extrabold text-red-700">TSh {{ number_format($monthExpense ?? 0, 2) }}</div>
+                    <div class="mt-2 text-2xl font-extrabold text-red-700">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($monthExpense ?? 0, 2) }}</div>
                 </div>
             </div>
 
@@ -57,8 +57,8 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Matumizi ya leo</div>
-                        <div class="mt-2 text-2xl font-extrabold text-gray-900">TSh {{ number_format($todayExpense ?? 0, 2) }}</div>
-                        <div class="mt-1 text-xs text-gray-500">Jana: TSh {{ number_format($yesterdayExpense ?? 0, 2) }}</div>
+                        <div class="mt-2 text-2xl font-extrabold text-gray-900">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($todayExpense ?? 0, 2) }}</div>
+                        <div class="mt-1 text-xs text-gray-500">Jana: {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($yesterdayExpense ?? 0, 2) }}</div>
                     </div>
 
                     @php
@@ -130,7 +130,7 @@
                         </div>
                         <div class="text-right">
                             <div class="font-extrabold {{ $transaction->type === 'income' ? 'text-emerald-700' : 'text-red-600' }}">
-                                TSh {{ number_format($transaction->amount, 2) }}
+                                {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($transaction->amount, 2) }}
                             </div>
                             <div class="text-xs font-bold uppercase tracking-widest text-gray-400">
                                 {{ $transaction->type === 'income' ? 'Mapato' : 'Matumizi' }}
@@ -157,7 +157,7 @@
                             <div class="text-xs text-gray-500">{{ $debt->type === 'lent' ? 'Nimeopesha' : 'Nimekopeshwa' }}</div>
                         </div>
                         <div class="text-right">
-                            <div class="font-extrabold text-gray-900">TSh {{ number_format($debt->amount, 2) }}</div>
+                            <div class="font-extrabold text-gray-900">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($debt->amount, 2) }}</div>
                             <div class="text-xs text-gray-500">Rudisha: {{ optional($debt->due_date)->format('d/m/Y') ?: '-' }}</div>
                         </div>
                     </div>
@@ -220,7 +220,7 @@
                 labels: lineLabels,
                 datasets: [
                     {
-                        label: 'Matumizi (TSh)',
+                        label: 'Matumizi (' + ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ')',
                         data: lineData,
                         borderColor: '#dc2626',
                         backgroundColor: 'rgba(220, 38, 38, 0.10)',
@@ -240,7 +240,7 @@
                         callbacks: {
                             label: function (ctx) {
                                 const v = Number(ctx.parsed.y || 0);
-                                return 'TSh ' + v.toLocaleString();
+                                return ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + v.toLocaleString();
                             }
                         }
                     }
@@ -254,7 +254,7 @@
                         grid: { color: 'rgba(107, 114, 128, 0.12)' },
                         ticks: {
                             color: '#6b7280',
-                            callback: (v) => 'TSh ' + Number(v).toLocaleString(),
+                            callback: (v) => ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + Number(v).toLocaleString(),
                         },
                     }
                 }
@@ -301,7 +301,7 @@
                         callbacks: {
                             label: function (ctx) {
                                 const v = Number(ctx.parsed || 0);
-                                return ctx.label + ': TSh ' + v.toLocaleString();
+                                return ctx.label + ': ' + ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + v.toLocaleString();
                             }
                         }
                     }

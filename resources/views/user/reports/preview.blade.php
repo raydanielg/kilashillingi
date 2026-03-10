@@ -28,8 +28,8 @@
                 <div class="flex items-center justify-between mb-2 bg-gray-50 p-1.5 border border-black/10">
                     <span class="text-[10px] font-extrabold uppercase"><i class="fas fa-calendar-day mr-1"></i> Tarehe: {{ $day['date'] }}</span>
                     <div class="flex gap-3 text-[9px] font-bold">
-                        <span class="text-emerald-700">IN: {{ number_format($day['income'], 0) }}</span>
-                        <span class="text-red-700">OUT: {{ number_format($day['expense'], 0) }}</span>
+                        <span class="text-emerald-700">IN: {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($day['income'], 0) }}</span>
+                        <span class="text-red-700">OUT: {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($day['expense'], 0) }}</span>
                     </div>
                 </div>
 
@@ -75,15 +75,15 @@
             <div class="grid grid-cols-3 gap-0 border border-black bg-white text-center">
                 <div class="border-r border-black p-2">
                     <div class="text-[8px] font-bold uppercase text-gray-400">Mapato Wiki</div>
-                    <span class="text-xs font-bold text-emerald-700">TSh {{ number_format($totalIncome, 2) }}</span>
+                    <span class="text-xs font-bold text-emerald-700">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($totalIncome, 2) }}</span>
                 </div>
                 <div class="border-r border-black p-2">
                     <div class="text-[8px] font-bold uppercase text-gray-400">Matumizi Wiki</div>
-                    <span class="text-xs font-bold text-red-700">TSh {{ number_format($totalExpense, 2) }}</span>
+                    <span class="text-xs font-bold text-red-700">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($totalExpense, 2) }}</span>
                 </div>
                 <div class="p-2 {{ $balance >= 0 ? 'bg-emerald-50/30' : 'bg-red-50/30' }}">
                     <div class="text-[8px] font-bold uppercase text-gray-400">Salio Wiki</div>
-                    <span class="text-xs font-bold {{ $balance >= 0 ? 'text-emerald-800' : 'text-red-800' }}">TSh {{ number_format($balance, 2) }}</span>
+                    <span class="text-xs font-bold {{ $balance >= 0 ? 'text-emerald-800' : 'text-red-800' }}">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($balance, 2) }}</span>
                 </div>
             </div>
         </div>
@@ -109,15 +109,15 @@
             <div class="grid grid-cols-3 gap-0 border border-black mb-4 bg-white text-center">
                 <div class="border-r border-black p-1.5">
                     <div class="text-[8px] font-bold uppercase text-gray-400">Mapato</div>
-                    <span class="text-[10px] font-bold text-emerald-700">TSh {{ number_format($totalIncome, 2) }}</span>
+                    <span class="text-[10px] font-bold text-emerald-700">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($totalIncome, 2) }}</span>
                 </div>
                 <div class="border-r border-black p-1.5">
                     <div class="text-[8px] font-bold uppercase text-gray-400">Matumizi</div>
-                    <span class="text-[10px] font-bold text-red-700">TSh {{ number_format($totalExpense, 2) }}</span>
+                    <span class="text-[10px] font-bold text-red-700">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($totalExpense, 2) }}</span>
                 </div>
                 <div class="p-1.5 {{ $balance >= 0 ? 'bg-emerald-50/30' : 'bg-red-50/30' }}">
                     <div class="text-[8px] font-bold uppercase text-gray-400">Salio</div>
-                    <span class="text-[10px] font-bold {{ $balance >= 0 ? 'text-emerald-800' : 'text-red-800' }}">TSh {{ number_format($balance, 2) }}</span>
+                    <span class="text-[10px] font-bold {{ $balance >= 0 ? 'text-emerald-800' : 'text-red-800' }}">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($balance, 2) }}</span>
                 </div>
             </div>
 

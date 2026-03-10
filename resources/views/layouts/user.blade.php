@@ -154,7 +154,7 @@
                         </div>
                         <div class="text-left hidden sm:block pr-2">
                             <div class="text-sm font-semibold text-gray-900 leading-none mb-1">{{ Auth::user()->name }}</div>
-                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Mtumiaji</div>
+                            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{{ Auth::user()->currency ?? 'TSh' }} | Mtumiaji</div>
                         </div>
                         <i class="fas fa-chevron-down text-xs text-gray-400 transition group-hover:text-gray-600 shrink-0 pr-2"></i>
                     </button>

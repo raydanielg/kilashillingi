@@ -54,7 +54,7 @@
                         <th class="px-6 py-3">Tarehe & Muda</th>
                         <th class="px-6 py-3">Maelezo</th>
                         <th class="px-6 py-3">Aina</th>
-                        <th class="px-6 py-3 text-right">Kiasi (TSh)</th>
+                        <th class="px-6 py-3 text-right">Kiasi ({{ Auth::user()->currency ?? 'TSh' }})</th>
                         <th class="px-6 py-3 text-right">Hatua</th>
                     </tr>
                 </thead>
@@ -80,10 +80,10 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right font-bold {{ $tx->type === 'income' ? 'text-emerald-700' : 'text-red-700' }}">
-                                {{ $tx->type === 'income' ? '+' : '-' }} {{ number_format($tx->amount, 2) }}
+                                {{ $tx->type === 'income' ? '+' : '-' }} {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($tx->amount, 2) }}
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <form action="{{ route('transactions.destroy', $tx) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta muamala huu wa TSh {{ number_format($tx->amount, 0) }}?')">
+                                <form action="{{ route('transactions.destroy', $tx) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta muamala huu wa {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($tx->amount, 0) }}?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-gray-400 hover:text-red-600 transition p-2">

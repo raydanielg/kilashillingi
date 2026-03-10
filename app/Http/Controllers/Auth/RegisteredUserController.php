@@ -54,6 +54,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'phone' => $phone,
             'role' => 'user',
+            'currency' => \App\Models\Setting::get('currency', 'TSh'),
             'password' => Hash::make($request->password),
         ]);
 

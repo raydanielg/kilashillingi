@@ -12,7 +12,7 @@
                 <i class="fas fa-wallet text-emerald-600"></i>
                 <span>Jumla ya Bajeti</span>
             </div>
-            <div class="text-2xl font-bold text-gray-900">TSh {{ number_format($totalBudgetLimit, 2) }}</div>
+            <div class="text-2xl font-bold text-gray-900">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($totalBudgetLimit, 2) }}</div>
             <p class="text-xs text-gray-500 mt-1">Kiwango ulichojiwekea mwezi huu</p>
         </div>
 
@@ -21,7 +21,7 @@
                 <i class="fas fa-shopping-cart text-red-600"></i>
                 <span>Zilizotumika</span>
             </div>
-            <div class="text-2xl font-bold text-red-700">TSh {{ number_format($totalActualSpent, 2) }}</div>
+            <div class="text-2xl font-bold text-red-700">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($totalActualSpent, 2) }}</div>
             <p class="text-xs text-gray-500 mt-1">Matumizi halisi hadi sasa</p>
         </div>
 
@@ -32,7 +32,7 @@
                 <span>Salio la Bajeti</span>
             </div>
             <div class="text-2xl font-bold {{ $remaining >= 0 ? 'text-emerald-800' : 'text-red-800' }}">
-                TSh {{ number_format(abs($remaining), 2) }}
+                {{ Auth::user()->currency ?? 'TSh' }} {{ number_format(abs($remaining), 2) }}
                 @if($remaining < 0) <span class="text-xs uppercase ml-1">(Zimezidi)</span> @endif
             </div>
             <p class="text-xs text-gray-500 mt-1">{{ $remaining >= 0 ? 'Kiasi kilichobaki kutumika' : 'Umezidisha bajeti yako' }}</p>
@@ -55,7 +55,7 @@
                                 <div>
                                     <span class="text-sm font-bold text-gray-900">{{ $item['category'] }}</span>
                                     <div class="text-[10px] text-gray-500 uppercase">
-                                        {{ number_format($item['spent'], 0) }} / {{ number_format($item['limit'], 0) }} TSh
+                                        {{ number_format($item['spent'], 0) }} / {{ number_format($item['limit'], 0) }} {{ Auth::user()->currency ?? 'TSh' }}
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -70,7 +70,7 @@
                             </div>
                             @if($item['is_over'])
                                 <p class="text-[10px] text-red-600 mt-1 font-bold italic">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i> Umezidisha bajeti ya {{ $item['category'] }} kwa TSh {{ number_format($item['spent'] - $item['limit'], 0) }}
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Umezidisha bajeti ya {{ $item['category'] }} kwa {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($item['spent'] - $item['limit'], 0) }}
                                 </p>
                             @endif
                             @if(isset($item['id']))
@@ -119,7 +119,7 @@
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Kiwango cha Juu (Limit)</label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">TSh</span>
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">{{ Auth::user()->currency ?? 'TSh' }}</span>
                             <input type="number" name="amount" required step="0.01" min="0" placeholder="0.00"
                                    class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none transition">
                         </div>

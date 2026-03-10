@@ -24,7 +24,7 @@
             <input type="hidden" name="date" value="{{ now('Africa/Dar_es_Salaam')->toDateString() }}">
 
             <div>
-                <label class="block text-sm font-extrabold text-gray-900 mb-2">Kiasi cha pesa</label>
+                <label class="block text-sm font-extrabold text-gray-900 mb-2">Kiasi cha pesa ({{ Auth::user()->currency ?? 'TSh' }})</label>
                 <input name="amount" type="number" step="0.01" min="0" value="{{ old('amount') }}" required
                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none">
                 @error('amount')
@@ -102,7 +102,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $note !== '' ? $note : '-' }}</td>
                                 <td class="px-6 py-4 text-right text-sm font-extrabold text-emerald-700">
-                                    + TSh {{ number_format($tx->amount, 2) }}
+                                    + {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($tx->amount, 2) }}
                                 </td>
                             </tr>
                         @empty

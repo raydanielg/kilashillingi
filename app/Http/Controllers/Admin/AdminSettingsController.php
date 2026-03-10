@@ -25,11 +25,12 @@ class AdminSettingsController extends Controller
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string',
             'currency' => 'nullable|string|max:10',
+            'available_currencies' => 'nullable|string',
             'footer_text' => 'nullable|string',
         ]);
 
         // Handle text settings
-        $textSettings = ['app_name', 'contact_email', 'contact_phone', 'currency', 'footer_text'];
+        $textSettings = ['app_name', 'contact_email', 'contact_phone', 'currency', 'available_currencies', 'footer_text'];
         foreach ($textSettings as $key) {
             if (isset($data[$key])) {
                 Setting::set($key, $data[$key]);

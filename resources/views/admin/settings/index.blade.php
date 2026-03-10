@@ -113,10 +113,23 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <div class="form-group">
-                                    <label for="currency">Alama ya Fedha (Currency)</label>
-                                    <input type="text" name="currency" id="currency" class="form-control" 
-                                           value="{{ $settings['currency'] ?? 'TSh' }}" placeholder="Mfano: TSh, $, Ksh">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="currency">Alama ya Fedha ya Msingi (Default Currency)</label>
+                                            <input type="text" name="currency" id="currency" class="form-control" 
+                                                   value="{{ $settings['currency'] ?? 'TSh' }}" placeholder="Mfano: TSh, $, Ksh">
+                                            <small class="text-muted">Alama hii itatumiwa na watumiaji wapya kwa mara ya kwanza.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="available_currencies">Orodha ya Alama za Fedha (Available Currencies)</label>
+                                            <input type="text" name="available_currencies" id="available_currencies" class="form-control" 
+                                                   value="{{ $settings['available_currencies'] ?? 'TSh,KSh,USh,$,€,£' }}" placeholder="Mfano: TSh,$,KSh">
+                                            <small class="text-muted">Tenganisha kwa mkato (koma). Hizi ndizo zitaonekana kwenye wasifu wa mtumiaji.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

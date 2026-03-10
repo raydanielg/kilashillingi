@@ -47,6 +47,20 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="currency" :value="__('Alama ya Fedha (Currency)')" />
+            <select id="currency" name="currency" class="mt-1 block w-full border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-md shadow-sm">
+                @php
+                    $availableCurrencies = explode(',', \App\Models\Setting::get('available_currencies', 'TSh,KSh,USh,$,€,£'));
+                @endphp
+                @foreach($availableCurrencies as $cur)
+                    @php $cur = trim($cur); @endphp
+                    <option value="{{ $cur }}" {{ old('currency', $user->currency) == $cur ? 'selected' : '' }}>{{ $cur }}</option>
+                @endforeach
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('currency')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
