@@ -36,7 +36,8 @@ class BudgetController extends Controller
         $totalActualSpent = 0;
 
         foreach ($knownCategories as $cat) {
-            $limit = $budgets->where('category', $cat)->first()->amount ?? 0;
+            $budget = $budgets->where('category', $cat)->first();
+            $limit = $budget->amount ?? 0;
             
             // Sum transactions that start with this category
             $spent = $transactions->filter(fn($tx) => str_starts_with($tx->description, $cat . ' -') || $tx->description === $cat)
@@ -45,6 +46,7 @@ class BudgetController extends Controller
             if ($limit > 0 || $spent > 0) {
                 $percent = $limit > 0 ? ($spent / $limit) * 100 : ($spent > 0 ? 100 : 0);
                 $budgetData[] = [
+                    'id' => $budget->id ?? null,
                     'category' => $cat,
                     'limit' => $limit,
                     'spent' => $spent,

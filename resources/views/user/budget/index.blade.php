@@ -73,6 +73,7 @@
                                     <i class="fas fa-exclamation-triangle mr-1"></i> Umezidisha bajeti ya {{ $item['category'] }} kwa TSh {{ number_format($item['spent'] - $item['limit'], 0) }}
                                 </p>
                             @endif
+                            @if(isset($item['id']))
                             <div class="mt-2 flex justify-end">
                                 <form action="{{ route('budget.destroy', $item['id']) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta bajeti ya {{ $item['category'] }}?')">
                                     @csrf
@@ -82,6 +83,7 @@
                                     </button>
                                 </form>
                             </div>
+                            @endif
                         </div>
                     @empty
                         <div class="text-center py-12">
