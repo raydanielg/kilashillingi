@@ -55,4 +55,79 @@
         </div>
     </div>
 </section>
+
+<!-- Reset Data Section -->
+<section id="reset" class="mt-8 bg-white border border-red-100 rounded-2xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div class="px-6 py-4 border-b border-red-50 bg-red-50/30 flex items-center gap-2">
+        <i class="fas fa-trash-alt text-red-600"></i>
+        <h3 class="text-sm font-bold text-gray-900 uppercase">Anza Upya (Reset Data)</h3>
+    </div>
+    <div class="p-6">
+        <div class="flex items-start gap-4 p-4 bg-red-50 rounded-xl border border-red-100 mb-6">
+            <i class="fas fa-exclamation-triangle text-red-600 text-xl mt-1"></i>
+            <div class="space-y-1">
+                <h4 class="text-sm font-bold text-red-900 uppercase tracking-tight">Tahadhari Muhimu!</h4>
+                <p class="text-xs text-red-700 leading-relaxed">
+                    Ukibofya kitufe cha "Anza Upya", data zako zote (Miamala, Madeni, Bajeti, na Vikumbusho) zitafutwa kabisa na hazitaweza kurudishwa. Akaunti yako na maelezo ya kuingia (Login) yataendelea kubaki.
+                </p>
+            </div>
+        </div>
+
+        <button onclick="confirmReset()" class="w-full sm:w-auto px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-red-900/10">
+            <i class="fas fa-sync-alt text-xs"></i>
+            <span>FUTA DATA NA ANZA UPYA</span>
+        </button>
+    </div>
+</section>
+
+<!-- Reset Confirmation Modal -->
+<div id="reset-modal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-all duration-300">
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all">
+        <div class="p-8 text-center space-y-6">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-circle text-red-600 text-4xl"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-xl font-bold text-gray-900 uppercase">Je, una uhakika?</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    Hatua hii hairejesheki. Data zako zote zitafutwa na utaanza upya kurekodi miamala yako.
+                </p>
+            </div>
+            
+            <div class="flex flex-col gap-3 pt-4">
+                <form action="{{ route('settings.reset-data') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-900/20 uppercase tracking-widest text-xs">
+                        NDIO, FUTA DATA ZOTE
+                    </button>
+                </form>
+                <button onclick="closeResetModal()" class="w-full bg-gray-100 text-gray-700 font-bold py-4 rounded-2xl hover:bg-gray-200 transition uppercase tracking-widest text-xs">
+                    HAPANA, GHAIRISHA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmReset() {
+        const modal = document.getElementById('reset-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+        const modal = document.getElementById('reset-modal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+
+    // Funga modal kwa kubonyeza nje
+    window.onclick = function(event) {
+        const modal = document.getElementById('reset-modal');
+        if (event.target == modal) {
+            closeResetModal();
+        }
+    }
+</script>
 @endsection

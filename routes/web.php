@@ -52,6 +52,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')-
     Route::get('/account', [AccountController::class, 'index'])->name('account');
 });
 
+use App\Http\Controllers\User\SettingsController;
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/expenses/add', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::get('/income/add', [IncomeController::class, 'create'])->name('income.create');
@@ -67,10 +69,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/reminders/{reminder}/toggle', [ReminderController::class, 'toggle'])->name('reminders.toggle');
     Route::delete('/reminders/{reminder}', [ReminderController::class, 'destroy'])->name('reminders.destroy');
 
-    Route::get('/settings', [ReminderController::class, 'index'])->name('settings.index'); // Temporary placeholder logic or redirect
-    
     Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
-        Route::get('/', function () { return view('user.settings.index'); })->name('index');
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::post('/reset-data', [SettingsController::class, 'resetData'])->name('reset-data');
         Route::get('/security', function () { return view('user.settings.security'); })->name('security');
         Route::get('/preferences', function () { return view('user.settings.preferences'); })->name('preferences');
         Route::get('/instructions', function () { return view('user.settings.instructions'); })->name('instructions');
