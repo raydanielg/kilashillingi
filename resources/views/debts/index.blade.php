@@ -224,24 +224,4 @@
     });
 </script>
 @endsection
-                        @if(!$debt->is_paid)
-                        <form action="{{ route('debts.paid', $debt) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="text-xs text-blue-600 hover:underline">Weka kama imelipwa</button>
-                        </form>
-                        @else
-                        <span class="text-xs text-green-600 font-bold uppercase">Imelipwa</span>
-                        @endif
-                    </div>
-                </div>
-                @empty
-                <div class="px-6 py-10 text-center text-gray-400 italic text-sm">
-                    Hakuna rekodi za {{ $type == 'lent' ? 'kukopesha' : 'kukopa' }}.
-                </div>
-                @endforelse
-            </div>
-        </div>
-        @endforeach
-    </div>
-</div>
-@endsection
+
