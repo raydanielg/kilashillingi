@@ -13,7 +13,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailCtrl = TextEditingController();
+  final _loginCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
 
   @override
@@ -27,7 +27,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
+    _loginCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
@@ -100,11 +100,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
                       const SizedBox(height: 24),
                       TextField(
-                        controller: _emailCtrl,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _loginCtrl,
+                        keyboardType: TextInputType.phone,
                         decoration: const InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email_outlined),
+                          labelText: 'Namba ya Simu',
+                          hintText: '07XXXXXXXX',
+                          prefixIcon: Icon(Icons.phone_iphone),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -133,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ? null
                               : () async {
                                   final ok = await ref.read(authStateProvider.notifier).login(
-                                        email: _emailCtrl.text.trim(),
+                                        login: _loginCtrl.text.trim(),
                                         password: _passwordCtrl.text,
                                       );
                                   if (ok && context.mounted) {

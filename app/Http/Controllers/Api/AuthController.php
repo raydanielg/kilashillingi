@@ -51,12 +51,27 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
+        $login = trim((string) $validated['login']);
+
         /** @var \App\Models\User|null $user */
-        $user = User::where('email', $validated['email'])->first();
+        $user = null;
+
+        if (str_contains($login, '@')) {
+            $user = User::where('email', $login)->first();
+        } else {
+            $phone = preg_replace('/[^0-9]/', '', $login);
+            if (str_starts_with($phone, '0')) {
+                $phone = '255' . substr($phone, 1);
+            } elseif (str_starts_with($phone, '7') || str_starts_with($phone, '6')) {
+                $phone = '255' . $phone;
+            }
+
+            $user = User::where('phone', $phone)->first();
+        }
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return response()->json([

@@ -6,13 +6,13 @@ class AuthRepository {
   final Dio _dio;
 
   Future<Map<String, dynamic>> login({
-    required String email,
+    required String login,
     required String password,
   }) async {
     final res = await _dio.post(
       '/v1/auth/login',
       data: {
-        'email': email,
+        'login': login,
         'password': password,
       },
     );

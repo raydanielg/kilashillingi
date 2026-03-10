@@ -54,11 +54,11 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> login({required String email, required String password}) async {
+  Future<bool> login({required String login, required String password}) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final data = await _repo.login(email: email, password: password);
+      final data = await _repo.login(login: login, password: password);
       final token = (data['token'] ?? '').toString();
       if (token.isEmpty) {
         state = state.copyWith(isLoading: false, error: 'Missing token from server.');
