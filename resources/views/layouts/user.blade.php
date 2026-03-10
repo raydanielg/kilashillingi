@@ -147,7 +147,7 @@
                     <button id="profile-dropdown-btn" class="flex items-center gap-3 p-1 hover:bg-gray-50 rounded-full transition group focus:outline-none">
                         <div class="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center text-white font-bold shadow-sm overflow-hidden shrink-0">
                             @if(Auth::user()->avatar)
-                                <img src="{{ asset(Auth::user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
+                                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
                             @else
                                 {{ substr(Auth::user()->name, 0, 1) }}
                             @endif
@@ -162,8 +162,12 @@
                     <!-- Dropdown Menu -->
                     <div id="profile-dropdown-menu" class="absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden transform scale-95 opacity-0 pointer-events-none transition-all duration-200 origin-top-right z-50">
                         <div class="p-4 border-b border-gray-50 bg-gray-50/50 text-center">
-                            <div class="w-16 h-16 rounded-full bg-emerald-700 flex items-center justify-center text-white font-bold mx-auto mb-3 text-2xl">
-                                {{ substr(Auth::user()->name, 0, 1) }}
+                            <div class="w-16 h-16 rounded-full bg-emerald-700 flex items-center justify-center text-white font-bold mx-auto mb-3 text-2xl overflow-hidden">
+                                @if(Auth::user()->avatar)
+                                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Avatar" class="w-full h-full object-cover">
+                                @else
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                @endif
                             </div>
                             <div class="text-sm font-bold text-gray-900">{{ Auth::user()->name }}</div>
                             <div class="text-[11px] text-gray-500 truncate mt-1">{{ Auth::user()->email }}</div>

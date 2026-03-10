@@ -73,6 +73,15 @@
                                     <i class="fas fa-exclamation-triangle mr-1"></i> Umezidisha bajeti ya {{ $item['category'] }} kwa TSh {{ number_format($item['spent'] - $item['limit'], 0) }}
                                 </p>
                             @endif
+                            <div class="mt-2 flex justify-end">
+                                <form action="{{ route('budget.destroy', $item['id']) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta bajeti ya {{ $item['category'] }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-[10px] text-red-600 hover:text-red-800 font-bold uppercase tracking-wider transition">
+                                        <i class="fas fa-trash-alt mr-1"></i> Futa Bajeti
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     @empty
                         <div class="text-center py-12">

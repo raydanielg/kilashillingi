@@ -81,7 +81,7 @@
                                             -
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-6 py-4 text-right flex items-center justify-end gap-3">
                                         @if(!$debt->is_paid)
                                             <button onclick="openPaymentModal({{ $debt->id }}, '{{ $debt->person_name }}', {{ $debt->amount }})" 
                                                     class="text-emerald-600 hover:text-emerald-800 font-bold text-xs uppercase transition">
@@ -90,6 +90,14 @@
                                         @else
                                             <i class="fas fa-check-double text-emerald-500"></i>
                                         @endif
+
+                                        <form action="{{ route('debts.destroy', $debt) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta deni la {{ $debt->person_name }} la TSh {{ number_format($debt->amount, 0) }}?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-gray-400 hover:text-red-600 transition p-2">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @empty

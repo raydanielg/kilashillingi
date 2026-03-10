@@ -69,7 +69,7 @@
                                         <div class="absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform {{ $reminder->is_active ? 'translate-x-4' : '' }}"></div>
                                     </button>
                                 </form>
-                                <form action="{{ route('reminders.destroy', $reminder) }}" method="POST" onsubmit="return confirm('Una uhakika unataka kufuta kumbusho hili?')">
+                                <form action="{{ route('reminders.destroy', $reminder) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta kumbusho la \'{{ $reminder->title }}\'?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-gray-400 hover:text-red-600 transition p-2">

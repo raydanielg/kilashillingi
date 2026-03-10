@@ -55,6 +55,7 @@
                         <th class="px-6 py-3">Maelezo</th>
                         <th class="px-6 py-3">Aina</th>
                         <th class="px-6 py-3 text-right">Kiasi (TSh)</th>
+                        <th class="px-6 py-3 text-right">Hatua</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50 text-sm">
@@ -81,10 +82,19 @@
                             <td class="px-6 py-4 text-right font-bold {{ $tx->type === 'income' ? 'text-emerald-700' : 'text-red-700' }}">
                                 {{ $tx->type === 'income' ? '+' : '-' }} {{ number_format($tx->amount, 2) }}
                             </td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="{{ route('transactions.destroy', $tx) }}" method="POST" onsubmit="return confirm('Je, una uhakika unataka kufuta muamala huu wa TSh {{ number_format($tx->amount, 0) }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-gray-400 hover:text-red-600 transition p-2">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-gray-500 italic">Hakuna miamala kwa sasa.</td>
+                            <td colspan="5" class="px-6 py-10 text-center text-gray-500 italic">Hakuna miamala kwa sasa.</td>
                         </tr>
                     @endforelse
                 </tbody>
