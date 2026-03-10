@@ -93,9 +93,15 @@
                 <div class="flex flex-col gap-6 mb-12">
                     <div class="flex items-center -space-x-3 overflow-hidden">
                         @foreach($displayUsers as $u)
-                            <img class="inline-block h-12 w-12 rounded-full ring-2 ring-[#059669] bg-gray-200" 
-                                 src="https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background=random&color=fff" 
-                                 alt="{{ $u->name }}">
+                            @if($u->avatar)
+                                <img class="inline-block h-12 w-12 rounded-full ring-2 ring-[#059669] bg-gray-200 object-cover" 
+                                     src="{{ asset('storage/' . $u->avatar) }}" 
+                                     alt="{{ $u->name }}">
+                            @else
+                                <img class="inline-block h-12 w-12 rounded-full ring-2 ring-[#059669] bg-gray-200" 
+                                     src="https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background=random&color=fff" 
+                                     alt="{{ $u->name }}">
+                            @endif
                         @endforeach
                         @if($usersCount > $displayUsers->count())
                             <div class="flex items-center justify-center h-12 w-12 rounded-full ring-2 ring-[#059669] bg-emerald-800 text-white text-xs font-bold">
