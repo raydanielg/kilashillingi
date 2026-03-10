@@ -1,6 +1,6 @@
 @extends('layouts.modern-auth')
 
-@php($showSocial = false)
+@php $showSocial = false; @endphp
 
 @section('auth_header')
 <div class="mb-8">
