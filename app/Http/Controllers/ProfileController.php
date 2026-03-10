@@ -74,10 +74,22 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
+        $oldCurrency = $user->currency;
         $user->fill($request->validated());
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
+        }
+
+        // Ikiwa amebadilisha currency, futa data zote zilizopita
+        if ($user->isDirty('currency') && $oldCurrency !== null) {
+            $user->transactions()->delete();
+            $user->budgets()->delete();
+            $user->debts()->delete();
+            $user->reminders()->delete();
+            
+            $user->save();
+            return Redirect::route('profile.edit')->with('status', 'profile-updated-and-cleared');
         }
 
         $user->save();

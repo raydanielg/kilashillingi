@@ -58,6 +58,9 @@
                     <option value="{{ $cur }}" {{ old('currency', $user->currency) == $cur ? 'selected' : '' }}>{{ $cur }}</option>
                 @endforeach
             </select>
+            <p class="mt-2 text-xs text-red-600 font-bold uppercase italic">
+                <i class="fas fa-exclamation-triangle mr-1"></i> Tahadhari: Ukibadilisha alama ya fedha, data zako zote (miamala, bajeti, madeni) zitafutwa ili kuzuia mchanganyiko wa hesabu.
+            </p>
             <x-input-error class="mt-2" :messages="$errors->get('currency')" />
         </div>
 
@@ -72,6 +75,16 @@
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600"
                 >{{ __('Saved.') }}</p>
+            @endif
+
+            @if (session('status') === 'profile-updated-and-cleared')
+                <p
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 5000)"
+                    class="text-sm text-red-600 font-bold"
+                ><i class="fas fa-check-circle mr-1"></i> {{ __('Alama ya fedha imebadilishwa na data zimesafishwa.') }}</p>
             @endif
         </div>
     </form>

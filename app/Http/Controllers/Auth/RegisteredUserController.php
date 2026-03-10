@@ -39,6 +39,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'phone' => ['required', 'string', 'regex:/^0[67]\d{8}$/', 'unique:'.User::class],
+            'currency' => ['required', 'string', 'max:10'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -54,7 +55,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'phone' => $phone,
             'role' => 'user',
-            'currency' => \App\Models\Setting::get('currency', 'TSh'),
+            'currency' => $request->currency ?? \App\Models\Setting::get('currency', 'KSh'),
             'password' => Hash::make($request->password),
         ]);
 

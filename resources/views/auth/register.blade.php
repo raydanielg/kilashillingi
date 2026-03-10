@@ -72,6 +72,32 @@
         @enderror
     </div>
 
+    <!-- Currency Selection -->
+    <div>
+        <label for="currency" class="block text-sm font-bold text-[#111827] mb-2 uppercase tracking-wide">
+            ALAMA YA FEDHA (CURRENCY)
+        </label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fa-solid fa-coins text-gray-400"></i>
+            </div>
+            <select id="currency" name="currency" required
+                    class="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none transition text-gray-900">
+                @php
+                    $availableCurrencies = explode(',', \App\Models\Setting::get('available_currencies', 'TSh,KSh,USh,$,€,£'));
+                    $defaultCurrency = \App\Models\Setting::get('currency', 'KSh');
+                @endphp
+                @foreach($availableCurrencies as $cur)
+                    @php $cur = trim($cur); @endphp
+                    <option value="{{ $cur }}" {{ old('currency', $defaultCurrency) == $cur ? 'selected' : '' }}>{{ $cur }}</option>
+                @endforeach
+            </select>
+        </div>
+        @error('currency')
+            <p class="mt-2 text-sm text-red-600 font-medium">{{ $message }}</p>
+        @enderror
+    </div>
+
     <!-- Password -->
     <div>
         <label for="password" class="block text-sm font-bold text-[#111827] mb-2 uppercase tracking-wide">
