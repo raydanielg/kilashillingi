@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -40,7 +41,7 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $token = $user->createToken('mobile')->plainTextToken;
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'token' => $token,
@@ -79,7 +80,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $token = $user->createToken('mobile')->plainTextToken;
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'token' => $token,
@@ -96,10 +97,10 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        if ($user && $request->user()->currentAccessToken()) {
-            $request->user()->currentAccessToken()->delete();
+        try {
+            JWTAuth::invalidate(JWTAuth::parseToken());
+        } catch (\Throwable $e) {
+            // Ignore if token is missing/invalid; client will drop token locally.
         }
 
         return response()->json([

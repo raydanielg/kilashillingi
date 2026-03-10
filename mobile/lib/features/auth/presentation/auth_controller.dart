@@ -33,24 +33,67 @@ class AuthController extends StateNotifier<AuthState> {
       return;
     }
 
-    try {
-      final data = await _repo.me();
+    final cachedUser = await _tokenStorage.readUser();
+    if (cachedUser != null) {
       state = AuthState(
         status: AuthStatus.authenticated,
-        user: Map<String, dynamic>.from(data['user'] as Map),
+        user: cachedUser,
+        isLoading: true,
+      );
+    }
+
+    try {
+      final data = await _repo.me();
+      final user = Map<String, dynamic>.from(data['user'] as Map);
+      await _tokenStorage.writeUser(user);
+
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        user: user,
       );
     } on DioException catch (e) {
-      await _tokenStorage.deleteToken();
-      state = AuthState(
-        status: AuthStatus.unauthenticated,
-        error: _dioErrorMessage(e),
-      );
+      final status = e.response?.statusCode;
+      final msg = _dioErrorMessage(e);
+
+      if (status == 401) {
+        await _tokenStorage.deleteToken();
+        await _tokenStorage.deleteUser();
+        state = AuthState(
+          status: AuthStatus.unauthenticated,
+          error: msg,
+        );
+        return;
+      }
+
+      if (cachedUser != null) {
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          user: cachedUser,
+          error: msg,
+          isLoading: false,
+        );
+      } else {
+        state = AuthState(
+          status: AuthStatus.unauthenticated,
+          error: msg,
+          isLoading: false,
+        );
+      }
     } catch (e) {
-      await _tokenStorage.deleteToken();
-      state = AuthState(
-        status: AuthStatus.unauthenticated,
-        error: e.toString(),
-      );
+      if (cachedUser != null) {
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          user: cachedUser,
+          error: e.toString(),
+          isLoading: false,
+        );
+      } else {
+        state = AuthState(
+          status: AuthStatus.unauthenticated,
+          error: e.toString(),
+          isLoading: false,
+        );
+      }
     }
   }
 
@@ -66,9 +109,11 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       await _tokenStorage.writeToken(token);
+      final user = Map<String, dynamic>.from(data['user'] as Map);
+      await _tokenStorage.writeUser(user);
       state = AuthState(
         status: AuthStatus.authenticated,
-        user: Map<String, dynamic>.from(data['user'] as Map),
+        user: user,
       );
       return true;
     } on DioException catch (e) {
@@ -110,9 +155,11 @@ class AuthController extends StateNotifier<AuthState> {
       }
 
       await _tokenStorage.writeToken(token);
+      final user = Map<String, dynamic>.from(data['user'] as Map);
+      await _tokenStorage.writeUser(user);
       state = AuthState(
         status: AuthStatus.authenticated,
-        user: Map<String, dynamic>.from(data['user'] as Map),
+        user: user,
       );
       return true;
     } on DioException catch (e) {
@@ -135,6 +182,7 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (_) {}
 
     await _tokenStorage.deleteToken();
+    await _tokenStorage.deleteUser();
     state = AuthState.unauthenticated;
   }
 

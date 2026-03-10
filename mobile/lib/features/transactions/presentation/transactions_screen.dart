@@ -6,7 +6,9 @@ import '../../auth/presentation/auth_controller.dart';
 import 'transactions_controller.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
-  const TransactionsScreen({super.key});
+  const TransactionsScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   ConsumerState<TransactionsScreen> createState() => _TransactionsScreenState();
@@ -83,23 +85,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final currency = (auth.user?['currency'] ?? 'KSh').toString();
     final dataAsync = ref.watch(transactionsPageProvider(_page));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transactions'),
-        actions: [
-          IconButton(
-            tooltip: 'Profile',
-            onPressed: () => context.go('/profile'),
-            icon: const Icon(Icons.person),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openCreateDialog(context),
-        child: const Icon(Icons.add),
-      ),
-      body: SafeArea(
-        child: dataAsync.when(
+    final body = dataAsync.when(
           data: (data) {
             final items = (data['data'] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
             final current = (data['current_page'] as num?)?.toInt() ?? _page;
@@ -198,8 +184,40 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Failed: $e')),
-        ),
+        );
+
+    if (widget.embedded) {
+      return Stack(
+        children: [
+          SafeArea(child: body),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton(
+              onPressed: () => _openCreateDialog(context),
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Transactions'),
+        actions: [
+          IconButton(
+            tooltip: 'Profile',
+            onPressed: () => context.go('/profile'),
+            icon: const Icon(Icons.person),
+          ),
+        ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openCreateDialog(context),
+        child: const Icon(Icons.add),
+      ),
+      body: SafeArea(child: body),
     );
   }
 }

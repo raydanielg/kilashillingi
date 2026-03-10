@@ -6,7 +6,9 @@ import '../../auth/presentation/auth_controller.dart';
 import 'budgets_controller.dart';
 
 class BudgetsScreen extends ConsumerWidget {
-  const BudgetsScreen({super.key});
+  const BudgetsScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   Future<void> _editBudget(BuildContext context, WidgetRef ref, String category, double current) async {
     final ctrl = TextEditingController(text: current.toStringAsFixed(0));
@@ -43,19 +45,7 @@ class BudgetsScreen extends ConsumerWidget {
 
     final asyncData = ref.watch(currentBudgetsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Budgets'),
-        actions: [
-          IconButton(
-            tooltip: 'Profile',
-            onPressed: () => context.go('/profile'),
-            icon: const Icon(Icons.person),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: asyncData.when(
+    final body = asyncData.when(
           data: (data) {
             final budgetData = (data['budget_data'] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
             final known = (data['known_categories'] as List).map((e) => e.toString()).toList();
@@ -80,8 +70,24 @@ class BudgetsScreen extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Failed: $e')),
-        ),
+        );
+
+    if (embedded) {
+      return SafeArea(child: body);
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Budgets'),
+        actions: [
+          IconButton(
+            tooltip: 'Profile',
+            onPressed: () => context.go('/profile'),
+            icon: const Icon(Icons.person),
+          ),
+        ],
       ),
+      body: SafeArea(child: body),
     );
   }
 }
