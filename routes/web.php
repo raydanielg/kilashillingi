@@ -16,6 +16,10 @@ use App\Http\Controllers\SitemapController;
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+
 Route::get('/', function () {
     return redirect()->route('login');
 });

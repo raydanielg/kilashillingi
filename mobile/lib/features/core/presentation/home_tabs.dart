@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/auth_state.dart';
 import '../../budgets/presentation/budgets_screen.dart';
+import '../../reports/presentation/reports_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
 import '../../transactions/presentation/transactions_screen.dart';
 import '../../transactions/presentation/transactions_controller.dart';
@@ -113,15 +114,23 @@ class _UserAvatar extends StatelessWidget {
   String _getEffectiveUrl() {
     if (avatarUrl.isEmpty) return '';
     if (avatarUrl.startsWith('http')) return avatarUrl;
-    // Handle relative paths from Laravel storage
-    // If it starts with /storage, we just need the base URL
-    // If it doesn't, we might need to add /storage/
+    
     final base = ApiConfig.baseUrl.replaceAll('/api', '');
-    if (avatarUrl.contains('storage/')) {
-      final cleanPath = avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl';
+    
+    // Ensure path starts with a single slash
+    var cleanPath = avatarUrl;
+    if (!cleanPath.startsWith('/')) {
+      cleanPath = '/$cleanPath';
+    }
+    
+    // Check if path already includes storage
+    if (cleanPath.startsWith('/storage/')) {
       return '$base$cleanPath';
     }
-    final cleanPath = avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl';
+    
+    // Most Laravel avatars are stored in storage/app/public/avatars/...
+    // which is accessed via public/storage/avatars/...
+    // If the database has 'avatars/3_1773116814.jpeg', we need '/storage/avatars/3_1773116814.jpeg'
     return '$base/storage$cleanPath';
   }
 
@@ -290,6 +299,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       'Mapato',
       'Matumizi',
       'Bajeti',
+      'Ripoti',
     ];
 
     final subtitles = <String>[
@@ -297,6 +307,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       'Orodha ya mapato',
       'Orodha ya matumizi',
       'Mipango ya matumizi',
+      'Mchanganuo wa miamala',
     ];
 
     final themeMode = ref.watch(themeModeProvider);
@@ -317,6 +328,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       const TransactionsScreen(embedded: true, typeFilter: 'income'),
       const TransactionsScreen(embedded: true, typeFilter: 'expense'),
       const BudgetsScreen(embedded: true),
+      const ReportsScreen(embedded: true),
     ];
 
     final body = IndexedStack(
@@ -369,11 +381,33 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _goTo,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.arrow_downward), selectedIcon: Icon(Icons.arrow_downward), label: 'Mapato'),
-          NavigationDestination(icon: Icon(Icons.arrow_upward), selectedIcon: Icon(Icons.arrow_upward), label: 'Matumizi'),
-          NavigationDestination(icon: Icon(Icons.pie_chart_outline), selectedIcon: Icon(Icons.pie_chart), label: 'Bajeti'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded, color: Colors.blue),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle, color: Colors.green),
+            label: 'Mapato',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.remove_circle_outline),
+            selectedIcon: Icon(Icons.remove_circle, color: Colors.red),
+            label: 'Matumizi',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.pie_chart_outline),
+            selectedIcon: Icon(Icons.pie_chart_rounded, color: Colors.orange),
+            label: 'Bajeti',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart_rounded, color: Colors.purple),
+            label: 'Ripoti',
+          ),
         ],
       ),
     );
