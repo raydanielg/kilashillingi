@@ -16,6 +16,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authStateProvider);
     final summaryAsync = ref.watch(dashboardSummaryProvider);
+    final theme = Theme.of(context);
 
     final body = Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -40,7 +41,8 @@ class DashboardScreen extends ConsumerWidget {
               child: summaryAsync.when(
                 data: (data) {
                   final currency = (data['currency'] ?? (auth.user?['currency'] ?? 'KSh')).toString();
-                  final totals = Map<String, dynamic>.from(data['totals'] as Map);
+                  final totalsRaw = data['totals'];
+                  final totals = totalsRaw is Map ? Map<String, dynamic>.from(totalsRaw) : <String, dynamic>{};
                   final income = (totals['income'] as num?)?.toDouble() ?? 0;
                   final expense = (totals['expense'] as num?)?.toDouble() ?? 0;
                   final balance = (totals['balance'] as num?)?.toDouble() ?? 0;
@@ -76,15 +78,15 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                         ),
                       if (isCached) const SizedBox(height: 12),
-                      _TotalsGrid(
+                      _TodayStatsScroll(
                         currency: currency,
-                        income: income,
-                        expense: expense,
-                        balance: balance,
+                        todayIncome: (totals['today_income'] as num?)?.toDouble() ?? 0,
+                        todayExpense: (totals['today_expense'] as num?)?.toDouble() ?? 0,
+                        todayTx: (totals['today_transactions_count'] as num?)?.toInt() ?? 0,
                         monthIncome: monthIncome,
                         monthExpense: monthExpense,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       _TrendsCard(
                         currency: currency,
                         trends: data['trends'],
@@ -92,7 +94,7 @@ class DashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       Text(
                         'Miamala ya hivi karibuni',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 8),
                       if (recent.isEmpty)
@@ -106,17 +108,38 @@ class DashboardScreen extends ConsumerWidget {
                           final color = type == 'income' ? Colors.green : Colors.red;
 
                           return Card(
+                            elevation: 0,
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.05)),
+                            ),
                             child: ListTile(
+                              visualDensity: VisualDensity.compact,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                               leading: CircleAvatar(
-                                backgroundColor: color.withValues(alpha: 0.12),
+                                radius: 16,
+                                backgroundColor: color.withValues(alpha: 0.1),
                                 child: Icon(
                                   type == 'income' ? Icons.arrow_downward : Icons.arrow_upward,
                                   color: color,
+                                  size: 16,
                                 ),
                               ),
-                              title: Text('$currency $amount'),
-                              subtitle: Text(desc.isEmpty ? date : '$desc\n$date'),
-                              isThreeLine: desc.isNotEmpty,
+                              title: Text(
+                                '$currency ${amount.toString()}',
+                                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                              subtitle: Text(
+                                desc.isEmpty ? date : desc,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.labelSmall,
+                              ),
+                              trailing: Text(
+                                date,
+                                style: theme.textTheme.labelSmall?.copyWith(color: theme.disabledColor),
+                              ),
                             ),
                           );
                         }),
@@ -325,36 +348,6 @@ class _HeroWelcomeCard extends StatelessWidget {
                       color: onPrimary,
                       fontWeight: FontWeight.w900,
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (todayIncome != null)
-                        _HeroPill(
-                          label: 'Mapato (leo)',
-                          value: '$currency ${todayIncome.toStringAsFixed(0)}',
-                        ),
-                      if (todayExpense != null)
-                        _HeroPill(
-                          label: 'Matumizi (leo)',
-                          value: '$currency ${todayExpense.toStringAsFixed(0)}',
-                        ),
-                      if (todayTx != null)
-                        _HeroPill(
-                          label: 'Miamala (leo)',
-                          value: todayTx.toString(),
-                        ),
-                      _HeroPill(
-                        label: 'Mapato (mwezi)',
-                        value: '$currency ${monthIncome.toStringAsFixed(0)}',
-                      ),
-                      _HeroPill(
-                        label: 'Matumizi (mwezi)',
-                        value: '$currency ${monthExpense.toStringAsFixed(0)}',
-                      ),
-                    ],
                   ),
                 ],
               );
@@ -737,73 +730,140 @@ class _NavCard extends StatelessWidget {
   }
 }
 
-class _TotalsGrid extends StatelessWidget {
-  const _TotalsGrid({
+class _TodayStatsScroll extends StatelessWidget {
+  const _TodayStatsScroll({
     required this.currency,
-    required this.income,
-    required this.expense,
-    required this.balance,
+    required this.todayIncome,
+    required this.todayExpense,
+    required this.todayTx,
     required this.monthIncome,
     required this.monthExpense,
   });
 
   final String currency;
-  final double income;
-  final double expense;
-  final double balance;
+  final double todayIncome;
+  final double todayExpense;
+  final int todayTx;
   final double monthIncome;
   final double monthExpense;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isNarrow = constraints.maxWidth < 360;
-
-        return GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: isNarrow ? 1 : 2,
-          childAspectRatio: isNarrow ? 3.3 : 1.55,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          children: [
-            _TotalTile(label: 'Balance', value: '$currency ${balance.toStringAsFixed(0)}'),
-            _TotalTile(label: 'Income', value: '$currency ${income.toStringAsFixed(0)}'),
-            _TotalTile(label: 'Expense', value: '$currency ${expense.toStringAsFixed(0)}'),
-            _TotalTile(label: 'This month', value: '$currency ${(monthIncome - monthExpense).toStringAsFixed(0)}'),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 110,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            children: [
+              _StatCard(
+                label: 'Mapato (Leo)',
+                value: '$currency ${todayIncome.toStringAsFixed(0)}',
+                color: Colors.green,
+                icon: Icons.arrow_downward,
+              ),
+              const SizedBox(width: 12),
+              _StatCard(
+                label: 'Matumizi (Leo)',
+                value: '$currency ${todayExpense.toStringAsFixed(0)}',
+                color: Colors.red,
+                icon: Icons.arrow_upward,
+              ),
+              const SizedBox(width: 12),
+              _StatCard(
+                label: 'Miamala (Leo)',
+                value: todayTx.toString(),
+                color: Colors.blue,
+                icon: Icons.receipt_long,
+              ),
+              const SizedBox(width: 12),
+              _StatCard(
+                label: 'Mapato (Mwezi)',
+                value: '$currency ${monthIncome.toStringAsFixed(0)}',
+                color: Colors.teal,
+                icon: Icons.account_balance_wallet,
+              ),
+              const SizedBox(width: 12),
+              _StatCard(
+                label: 'Matumizi (Mwezi)',
+                value: '$currency ${monthExpense.toStringAsFixed(0)}',
+                color: Colors.orange,
+                icon: Icons.payments,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _TotalTile extends StatelessWidget {
-  const _TotalTile({required this.label, required this.value});
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
 
   final String label;
   final String value;
+  final Color color;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+    final theme = Theme.of(context);
+    return Container(
+      width: 150,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 16, color: color),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: color.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

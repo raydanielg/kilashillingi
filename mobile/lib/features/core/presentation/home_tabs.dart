@@ -7,9 +7,158 @@ import '../../budgets/presentation/budgets_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
 import '../../transactions/presentation/transactions_screen.dart';
 import '../../transactions/presentation/transactions_controller.dart';
+import '../../../core/config/api_config.dart';
 import '../../../app/app.dart';
 import 'dashboard_screen.dart';
 import 'header.dart';
+
+class _QuickAddGrid extends StatelessWidget {
+  const _QuickAddGrid({required this.onTap});
+  final Function(String type) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 2,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.4,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        _QuickAddItem(
+          label: 'Mapato',
+          icon: Icons.add_chart,
+          color: Colors.green,
+          onTap: () => onTap('income'),
+        ),
+        _QuickAddItem(
+          label: 'Matumizi',
+          icon: Icons.payments_outlined,
+          color: Colors.red,
+          onTap: () => onTap('expense'),
+        ),
+        _QuickAddItem(
+          label: 'Bajeti',
+          icon: Icons.pie_chart_outline,
+          color: Colors.blue,
+          onTap: () => onTap('budget'),
+        ),
+        _QuickAddItem(
+          label: 'Deni',
+          icon: Icons.history_outlined,
+          color: Colors.orange,
+          onTap: () => onTap('debt'),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickAddItem extends StatelessWidget {
+  const _QuickAddItem({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _UserAvatar extends StatelessWidget {
+  const _UserAvatar({
+    required this.avatarUrl,
+    required this.initials,
+    required this.onTap,
+  });
+
+  final String avatarUrl;
+  final String initials;
+  final VoidCallback onTap;
+
+  String _getEffectiveUrl() {
+    if (avatarUrl.isEmpty) return '';
+    if (avatarUrl.startsWith('http')) return avatarUrl;
+    // Handle relative paths from Laravel storage
+    // If it starts with /storage, we just need the base URL
+    // If it doesn't, we might need to add /storage/
+    final base = ApiConfig.baseUrl.replaceAll('/api', '');
+    if (avatarUrl.contains('storage/')) {
+      final cleanPath = avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl';
+      return '$base$cleanPath';
+    }
+    final cleanPath = avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl';
+    return '$base/storage$cleanPath';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final effectiveUrl = _getEffectiveUrl();
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: primary.withValues(alpha: 0.2), width: 1.5),
+        ),
+        child: CircleAvatar(
+          radius: 18,
+          backgroundColor: primary.withValues(alpha: 0.1),
+          backgroundImage: effectiveUrl.isNotEmpty ? NetworkImage(effectiveUrl) : null,
+          child: effectiveUrl.isNotEmpty
+              ? null
+              : Text(
+                  initials,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    color: primary,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
 
 class HomeTabs extends ConsumerStatefulWidget {
   const HomeTabs({super.key});
@@ -50,29 +199,22 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
                   'Ongeza',
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
                 ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: () async {
+                const SizedBox(height: 16),
+                _QuickAddGrid(
+                  onTap: (type) async {
                     Navigator.of(context).pop();
-                    _goTo(1);
-                    await Future<void>.delayed(const Duration(milliseconds: 250));
-                    if (!mounted) return;
-                    await _openQuickTransactionDialog(type: 'income');
+                    if (type == 'income') {
+                      _goTo(1);
+                      await Future<void>.delayed(const Duration(milliseconds: 250));
+                      await _openQuickTransactionDialog(type: 'income');
+                    } else if (type == 'expense') {
+                      _goTo(2);
+                      await Future<void>.delayed(const Duration(milliseconds: 250));
+                      await _openQuickTransactionDialog(type: 'expense');
+                    } else if (type == 'budget') {
+                      _goTo(3);
+                    }
                   },
-                  icon: const Icon(Icons.arrow_downward),
-                  label: const Text('Mapato'),
-                ),
-                const SizedBox(height: 10),
-                FilledButton.tonalIcon(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    _goTo(2);
-                    await Future<void>.delayed(const Duration(milliseconds: 250));
-                    if (!mounted) return;
-                    await _openQuickTransactionDialog(type: 'expense');
-                  },
-                  icon: const Icon(Icons.arrow_upward),
-                  label: const Text('Matumizi'),
                 ),
               ],
             ),
@@ -177,6 +319,11 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       const BudgetsScreen(embedded: true),
     ];
 
+    final body = IndexedStack(
+      index: _index,
+      children: pages,
+    );
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -195,24 +342,11 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
                     icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
                   ),
                   const SizedBox(width: 4),
-                  InkWell(
+                  _UserAvatar(
+                    avatarUrl: avatarUrl,
+                    initials: initials,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const ProfileScreen(embedded: false)),
-                    ),
-                    borderRadius: BorderRadius.circular(999),
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-                      backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-                      child: avatarUrl.isNotEmpty
-                          ? null
-                          : Text(
-                              initials,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
                     ),
                   ),
                 ],
@@ -220,10 +354,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
             ),
             const Divider(height: 1),
             Expanded(
-              child: IndexedStack(
-                index: _index,
-                children: pages,
-              ),
+              child: body,
             ),
           ],
         ),
