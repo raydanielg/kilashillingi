@@ -80,10 +80,11 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $token = JWTAuth::fromUser($user);
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
             'user' => $user,
         ]);
     }
@@ -91,20 +92,16 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json([
-            'user' => $request->user(),
+            'user' => auth('sanctum')->user(),
         ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
-        try {
-            JWTAuth::invalidate(JWTAuth::parseToken());
-        } catch (\Throwable $e) {
-            // Ignore if token is missing/invalid; client will drop token locally.
-        }
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out.',
+            'message' => 'Successfully logged out',
         ]);
     }
 }
