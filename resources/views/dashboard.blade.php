@@ -54,24 +54,24 @@
             </div>
 
             <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="p-5 rounded-2xl bg-white border border-gray-200">
-                    <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Mapato ya leo</div>
-                    <div class="mt-2 text-2xl font-extrabold text-gray-900">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($todayIncome ?? 0, 2) }}</div>
-                    <div class="mt-1 text-xs text-gray-500">Miamala leo: {{ number_format($todayTransactionsCount ?? 0) }}</div>
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
+                    <div class="text-xs font-extrabold text-emerald-900 uppercase tracking-widest">Mapato ya leo</div>
+                    <div class="mt-2 text-2xl font-extrabold text-emerald-800">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($todayIncome ?? 0, 2) }}</div>
+                    <div class="mt-1 text-xs text-emerald-600">Miamala leo: {{ number_format($todayTransactionsCount ?? 0) }}</div>
                 </div>
-                <div class="p-5 rounded-2xl bg-white border border-gray-200">
-                    <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Miamala (mwezi huu)</div>
-                    <div class="mt-2 text-2xl font-extrabold text-gray-900">{{ number_format($monthTransactionsCount ?? 0) }}</div>
-                    <div class="mt-1 text-xs text-gray-500">Jumla ya miamala ya mwezi huu</div>
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+                    <div class="text-xs font-extrabold text-blue-900 uppercase tracking-widest">Miamala (mwezi huu)</div>
+                    <div class="mt-2 text-2xl font-extrabold text-blue-800">{{ number_format($monthTransactionsCount ?? 0) }}</div>
+                    <div class="mt-1 text-xs text-blue-600">Jumla ya miamala ya mwezi huu</div>
                 </div>
             </div>
 
-            <div class="mt-4 p-5 rounded-2xl bg-white border border-gray-200">
+            <div class="mt-4 p-5 rounded-2xl bg-gradient-to-br from-red-50 to-red-100 border border-red-200">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Matumizi ya leo</div>
-                        <div class="mt-2 text-2xl font-extrabold text-gray-900">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($todayExpense ?? 0, 2) }}</div>
-                        <div class="mt-1 text-xs text-gray-500">Jana: {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($yesterdayExpense ?? 0, 2) }}</div>
+                        <div class="text-xs font-extrabold text-red-900 uppercase tracking-widest">Matumizi ya leo</div>
+                        <div class="mt-2 text-2xl font-extrabold text-red-800">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($todayExpense ?? 0, 2) }}</div>
+                        <div class="mt-1 text-xs text-red-600">Jana: {{ Auth::user()->currency ?? 'TSh' }} {{ number_format($yesterdayExpense ?? 0, 2) }}</div>
                     </div>
 
                     @php
@@ -89,22 +89,22 @@
             </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-2xl p-6">
-            <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Ongeza Haraka</div>
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-6">
+            <div class="text-xs font-extrabold text-purple-900 uppercase tracking-widest">Ongeza Haraka</div>
             <div class="mt-4 grid grid-cols-1 gap-3">
-                <a href="{{ route('expenses.create') }}" class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 font-extrabold text-gray-900">Matumizi</a>
-                <a href="{{ route('income.create') }}" class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 font-extrabold text-gray-900">Mapato</a>
-                <a href="{{ route('history.index') }}" class="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 font-extrabold text-gray-900">Historia</a>
+                <a href="{{ route('expenses.create') }}" class="px-4 py-3 rounded-xl border border-red-200 bg-red-50 font-extrabold text-red-700 hover:bg-red-100 transition-colors">Matumizi</a>
+                <a href="{{ route('income.create') }}" class="px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50 font-extrabold text-emerald-700 hover:bg-emerald-100 transition-colors">Mapato</a>
+                <a href="{{ route('history.index') }}" class="px-4 py-3 rounded-xl border border-blue-200 bg-blue-50 font-extrabold text-blue-700 hover:bg-blue-100 transition-colors">Historia</a>
             </div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6">
+        <div class="lg:col-span-2 bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded-2xl p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <div class="font-extrabold text-gray-900">Mwenendo wa matumizi (kila siku)</div>
-                    <div class="text-sm text-gray-500">Siku 7 zilizopita</div>
+                    <div class="font-extrabold text-indigo-900">Mwenendo wa matumizi (kila siku)</div>
+                    <div class="text-sm text-indigo-600">Siku 7 zilizopita</div>
                 </div>
             </div>
 
@@ -115,21 +115,21 @@
             <div class="mt-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <div class="font-extrabold text-gray-900">Mapato vs Matumizi</div>
-                        <div class="text-sm text-gray-500">Mlinganisho wa siku 7</div>
+                        <div class="font-extrabold text-indigo-900">Mapato vs Matumizi</div>
+                        <div class="text-sm text-indigo-600">Mlinganisho wa siku 7</div>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <canvas id="income-expense-bar" height="120"></canvas>
-                </div>
+            </div>
+            <div class="mt-4">
+                <canvas id="income-expense-bar" height="120"></canvas>
             </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-2xl p-6">
+        <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <div class="font-extrabold text-gray-900">Mgawanyo wa matumizi</div>
-                    <div class="text-sm text-gray-500">Kwa makundi (mwezi huu)</div>
+                    <div class="font-extrabold text-orange-900">Mgawanyo wa matumizi</div>
+                    <div class="text-sm text-orange-600">Kwa makundi (mwezi huu)</div>
                 </div>
             </div>
 
@@ -140,9 +140,9 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 class="font-extrabold text-gray-900">Miamala za Hivi Karibuni</h2>
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-200 rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-teal-200 flex items-center justify-between">
+                <h2 class="font-extrabold text-teal-900">Miamala za Hivi Karibuni</h2>
                 <a href="{{ route('transactions.index') }}" class="text-sm font-extrabold text-emerald-700 hover:underline">Tazama zote</a>
             </div>
 
@@ -168,9 +168,9 @@
             </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 class="font-extrabold text-gray-900">Madeni Yasiyolipwa</h2>
+        <div class="bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200 rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-pink-200 flex items-center justify-between">
+                <h2 class="font-extrabold text-pink-900">Madeni Yasiyolipwa</h2>
                 <a href="{{ route('debts.index') }}" class="text-sm font-extrabold text-emerald-700 hover:underline">Tazama yote</a>
             </div>
 

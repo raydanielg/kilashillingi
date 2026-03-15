@@ -102,7 +102,7 @@ class AuthController extends StateNotifier<AuthState> {
 
     try {
       final data = await _repo.login(login: login, password: password);
-      final token = (data['token'] ?? '').toString();
+      final token = (data['token'] ?? data['access_token'] ?? '').toString();
       if (token.isEmpty) {
         state = state.copyWith(isLoading: false, error: 'Missing token from server.');
         return false;
