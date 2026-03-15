@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_config.dart';
 import '../../../core/storage/token_storage.dart';
 
 class DashboardRepository {
@@ -19,10 +20,12 @@ class DashboardRepository {
       return data;
     } on DioException catch (e) {
       final cached = await _tokenStorage.readDashboardSummary();
-      if (cached is Map && cached['data'] is Map) {
-        final payload = Map<String, dynamic>.from(cached['data'] as Map);
+      if (cached != null && cached['data'] is Map) {
+        final cachedData = Map<String, dynamic>.from(cached['data'] as Map);
+        final payload = Map<String, dynamic>.from(cachedData);
         payload['is_cached'] = true;
-        if (cached['cached_at'] != null) payload['cached_at'] = cached['cached_at'];
+        final cachedAt = cached['cached_at'];
+        if (cachedAt != null) payload['cached_at'] = cachedAt;
         return payload;
       }
 
@@ -31,6 +34,15 @@ class DashboardRepository {
   }
 
   String _dioErrorMessage(DioException e) {
+    if (e.type == DioExceptionType.connectionError || e.type == DioExceptionType.unknown) {
+      final baseUrl = ApiConfig.baseUrl;
+      final hostHint = baseUrl.contains('127.0.0.1')
+          ? 'Ukiwa kwenye REAL PHONE, 127.0.0.1 ni simu yenyewe. Tumia IP ya PC (mf http://192.168.x.x:8000/api) au tumia adb reverse: adb reverse tcp:8000 tcp:8000'
+          : 'Hakikisha backend iko running na simu/emulator ina-access hiyo address.';
+
+      return 'Imeshindikana ku-connect kwenye server.\nBase URL: $baseUrl\n$hostHint';
+    }
+
     final status = e.response?.statusCode;
     final data = e.response?.data;
 

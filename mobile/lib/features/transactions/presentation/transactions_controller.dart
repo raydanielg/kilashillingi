@@ -12,6 +12,11 @@ final transactionsPageProvider = FutureProvider.family<Map<String, dynamic>, int
   return repo.list(page: page);
 });
 
+final transactionsPageFilteredProvider = FutureProvider.family<Map<String, dynamic>, ({int page, String? type})>((ref, args) async {
+  final repo = ref.watch(transactionsRepositoryProvider);
+  return repo.list(page: args.page, type: args.type);
+});
+
 final transactionsActionsProvider = Provider<TransactionsActions>((ref) {
   return TransactionsActions(ref.watch(transactionsRepositoryProvider), ref);
 });

@@ -53,6 +53,19 @@
                 </div>
             </div>
 
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-5 rounded-2xl bg-white border border-gray-200">
+                    <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Mapato ya leo</div>
+                    <div class="mt-2 text-2xl font-extrabold text-gray-900">{{ Auth::user()->currency ?? 'TSh' }} {{ number_format($todayIncome ?? 0, 2) }}</div>
+                    <div class="mt-1 text-xs text-gray-500">Miamala leo: {{ number_format($todayTransactionsCount ?? 0) }}</div>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-gray-200">
+                    <div class="text-xs font-extrabold text-gray-500 uppercase tracking-widest">Miamala (mwezi huu)</div>
+                    <div class="mt-2 text-2xl font-extrabold text-gray-900">{{ number_format($monthTransactionsCount ?? 0) }}</div>
+                    <div class="mt-1 text-xs text-gray-500">Jumla ya miamala ya mwezi huu</div>
+                </div>
+            </div>
+
             <div class="mt-4 p-5 rounded-2xl bg-white border border-gray-200">
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -91,12 +104,24 @@
             <div class="flex items-center justify-between">
                 <div>
                     <div class="font-extrabold text-gray-900">Mwenendo wa matumizi (kila siku)</div>
-                    <div class="text-sm text-gray-500">Siku 14 zilizopita</div>
+                    <div class="text-sm text-gray-500">Siku 7 zilizopita</div>
                 </div>
             </div>
 
             <div class="mt-6">
                 <canvas id="daily-expense-line" height="110"></canvas>
+            </div>
+
+            <div class="mt-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-extrabold text-gray-900">Mapato vs Matumizi</div>
+                        <div class="text-sm text-gray-500">Mlinganisho wa siku 7</div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <canvas id="income-expense-bar" height="120"></canvas>
+                </div>
             </div>
         </div>
 
@@ -211,6 +236,7 @@
 
         const lineLabels = @json($dailyExpenseLabels ?? []);
         const lineData = @json($dailyExpenseData ?? []);
+        const incomeData = @json($dailyIncomeData ?? []);
         const pieLabels = @json($pieLabels ?? []);
         const pieData = @json($pieData ?? []);
 
@@ -260,6 +286,68 @@
                 }
             }
         });
+
+        const barEl = document.getElementById('income-expense-bar');
+        if (barEl) {
+            new Chart(barEl, {
+                type: 'bar',
+                data: {
+                    labels: lineLabels,
+                    datasets: [
+                        {
+                            label: 'Mapato',
+                            data: incomeData,
+                            backgroundColor: 'rgba(5, 150, 105, 0.25)',
+                            borderColor: '#059669',
+                            borderWidth: 2,
+                            borderRadius: 10,
+                        },
+                        {
+                            label: 'Matumizi',
+                            data: lineData,
+                            backgroundColor: 'rgba(220, 38, 38, 0.25)',
+                            borderColor: '#dc2626',
+                            borderWidth: 2,
+                            borderRadius: 10,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#111827',
+                                font: { weight: '800' },
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    const v = Number(ctx.parsed.y || 0);
+                                    return ctx.dataset.label + ': ' + ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + v.toLocaleString();
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#6b7280', font: { weight: '700' } },
+                        },
+                        y: {
+                            grid: { color: 'rgba(107, 114, 128, 0.12)' },
+                            ticks: {
+                                color: '#6b7280',
+                                callback: (v) => ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + Number(v).toLocaleString(),
+                            },
+                        },
+                    },
+                },
+            });
+        }
 
         const pieColors = [
             '#059669',

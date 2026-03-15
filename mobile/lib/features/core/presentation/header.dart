@@ -15,6 +15,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final secondary = theme.colorScheme.onSurfaceVariant;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -46,7 +47,7 @@ class Header extends StatelessWidget {
                     subtitle!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54),
+                    style: theme.textTheme.bodySmall?.copyWith(color: secondary),
                   ),
                 ],
               ],

@@ -34,17 +34,21 @@ class DashboardController extends Controller
         $today = Carbon::now($tz)->toDateString();
         $yesterday = Carbon::now($tz)->subDay()->toDateString();
 
+        $todayIncome = $user->transactions()->where('type', 'income')->whereDate('date', $today)->sum('amount');
         $todayExpense = $user->transactions()->where('type', 'expense')->whereDate('date', $today)->sum('amount');
         $yesterdayExpense = $user->transactions()->where('type', 'expense')->whereDate('date', $yesterday)->sum('amount');
+
+        $todayTransactionsCount = $user->transactions()->whereDate('date', $today)->count();
+        $monthTransactionsCount = $user->transactions()->where('date', '>=', $monthStart->toDateString())->count();
 
         $expenseTrendDirection = $todayExpense >= $yesterdayExpense ? 'up' : 'down';
         $expenseTrendPercent = $yesterdayExpense > 0
             ? (($todayExpense - $yesterdayExpense) / $yesterdayExpense) * 100
             : ($todayExpense > 0 ? 100 : 0);
 
-        $trendStart = Carbon::now($tz)->subDays(13)->startOfDay();
-        $trendDates = collect(range(0, 13))
-            ->map(fn ($i) => Carbon::now($tz)->subDays(13 - $i)->toDateString());
+        $trendStart = Carbon::now($tz)->subDays(6)->startOfDay();
+        $trendDates = collect(range(0, 6))
+            ->map(fn ($i) => Carbon::now($tz)->subDays(6 - $i)->toDateString());
 
         $trendRows = $user->transactions()
             ->selectRaw('date as d, SUM(amount) as total')
@@ -54,9 +58,19 @@ class DashboardController extends Controller
             ->orderBy('d')
             ->get();
 
+        $incomeTrendRows = $user->transactions()
+            ->selectRaw('date as d, SUM(amount) as total')
+            ->where('type', 'income')
+            ->where('date', '>=', $trendStart->toDateString())
+            ->groupBy('d')
+            ->orderBy('d')
+            ->get();
+
         $trendMap = $trendRows->mapWithKeys(fn ($row) => [(string) $row->d => (float) $row->total]);
+        $incomeTrendMap = $incomeTrendRows->mapWithKeys(fn ($row) => [(string) $row->d => (float) $row->total]);
         $dailyExpenseLabels = $trendDates->map(fn ($d) => Carbon::parse($d)->format('d/m'))->values();
         $dailyExpenseData = $trendDates->map(fn ($d) => (float) ($trendMap[$d] ?? 0))->values();
+        $dailyIncomeData = $trendDates->map(fn ($d) => (float) ($incomeTrendMap[$d] ?? 0))->values();
 
         $knownCategories = [
             'Chakula',
@@ -109,12 +123,16 @@ class DashboardController extends Controller
             'balance',
             'monthIncome',
             'monthExpense',
+            'todayIncome',
             'todayExpense',
             'yesterdayExpense',
+            'todayTransactionsCount',
+            'monthTransactionsCount',
             'expenseTrendDirection',
             'expenseTrendPercent',
             'dailyExpenseLabels',
             'dailyExpenseData',
+            'dailyIncomeData',
             'pieLabels',
             'pieData',
         ));

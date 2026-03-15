@@ -15,10 +15,22 @@ class TransactionController extends Controller
         $perPage = (int) $request->query('per_page', 20);
         $perPage = max(1, min(100, $perPage));
 
-        $transactions = $request->user()
+        $type = $request->query('type');
+        $type = is_string($type) ? strtolower(trim($type)) : null;
+        if (!in_array($type, ['income', 'expense'], true)) {
+            $type = null;
+        }
+
+        $q = $request->user()
             ->transactions()
             ->orderBy('date', 'desc')
-            ->paginate($perPage);
+            ->orderBy('id', 'desc');
+
+        if ($type) {
+            $q->where('type', $type);
+        }
+
+        $transactions = $q->paginate($perPage);
 
         return response()->json($transactions);
     }

@@ -23,22 +23,17 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (auth.status != AuthStatus.authenticated) ...[
-            const Text('Not authenticated.'),
+            const Text('Hujaingia kwenye akaunti.'),
             const SizedBox(height: 10),
             FilledButton(
               onPressed: () => context.go('/login'),
-              child: const Text('Go to Login'),
+              child: const Text('Ingia'),
             ),
           ] else ...[
-            Text(
-              'Karibu, ${(auth.user?['name'] ?? '').toString()}',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 12),
-            _Shortcuts(
-              onTransactions: () => onShortcut != null ? onShortcut!(1) : context.go('/transactions'),
-              onBudgets: () => onShortcut != null ? onShortcut!(2) : context.go('/budgets'),
-              onProfile: () => onShortcut != null ? onShortcut!(3) : context.go('/profile'),
+            _HeroWelcomeCard(
+              name: (auth.user?['name'] ?? '').toString(),
+              currency: (auth.user?['currency'] ?? 'KSh').toString(),
+              summaryAsync: summaryAsync,
             ),
             const SizedBox(height: 14),
             Expanded(
@@ -89,14 +84,19 @@ class DashboardScreen extends ConsumerWidget {
                         monthIncome: monthIncome,
                         monthExpense: monthExpense,
                       ),
+                      const SizedBox(height: 12),
+                      _TrendsCard(
+                        currency: currency,
+                        trends: data['trends'],
+                      ),
                       const SizedBox(height: 16),
                       Text(
-                        'Recent',
+                        'Miamala ya hivi karibuni',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 8),
                       if (recent.isEmpty)
-                        const Text('No transactions yet.')
+                        const Text('Bado hakuna miamala.')
                       else
                         ...recent.map((tx) {
                           final type = (tx['type'] ?? '').toString();
@@ -128,6 +128,13 @@ class DashboardScreen extends ConsumerWidget {
                   message: e.toString().replaceFirst('Exception: ', ''),
                   onRetry: () => ref.invalidate(dashboardSummaryProvider),
                   onLogin: () => context.go('/login'),
+                  onTransactions: () {
+                    if (onShortcut != null) {
+                      onShortcut!(1);
+                    } else {
+                      context.go('/transactions');
+                    }
+                  },
                 ),
               ),
             ),
@@ -169,11 +176,13 @@ class _DashboardError extends StatelessWidget {
     required this.message,
     required this.onRetry,
     required this.onLogin,
+    required this.onTransactions,
   });
 
   final String message;
   final VoidCallback onRetry;
   final VoidCallback onLogin;
+  final VoidCallback onTransactions;
 
   @override
   Widget build(BuildContext context) {
@@ -205,12 +214,16 @@ class _DashboardError extends StatelessWidget {
                     FilledButton(
                       style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
                       onPressed: onRetry,
-                      child: const Text('Retry'),
+                      child: const Text('Jaribu tena'),
+                    ),
+                    TextButton(
+                      onPressed: onTransactions,
+                      child: const Text('Nenda Miamala'),
                     ),
                     if (needsLogin)
                       TextButton(
                         onPressed: onLogin,
-                        child: const Text('Login'),
+                        child: const Text('Ingia'),
                       ),
                   ],
                 ),
@@ -219,6 +232,366 @@ class _DashboardError extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _HeroWelcomeCard extends StatelessWidget {
+  const _HeroWelcomeCard({
+    required this.name,
+    required this.currency,
+    required this.summaryAsync,
+  });
+
+  final String name;
+  final String currency;
+  final AsyncValue<Map<String, dynamic>> summaryAsync;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final onPrimary = theme.colorScheme.onPrimary;
+
+    final displayName = name.trim().isEmpty ? 'Mtumiaji' : name.trim();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [
+            primary,
+            Color.lerp(primary, Colors.red.shade700, 0.35)!,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: primary.withValues(alpha: 0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hello 👋, $displayName',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: onPrimary,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Karibu kwenye KilaShillingi. Rekodi mapato na matumizi yako kila siku.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: onPrimary.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 14),
+          summaryAsync.when(
+            data: (data) {
+              final totalsRaw = data['totals'];
+              final totals = totalsRaw is Map ? Map<String, dynamic>.from(totalsRaw) : <String, dynamic>{};
+              final balance = (totals['balance'] as num?)?.toDouble() ?? 0;
+              final monthIncome = (totals['month_income'] as num?)?.toDouble() ?? 0;
+              final monthExpense = (totals['month_expense'] as num?)?.toDouble() ?? 0;
+              final todayIncome = (totals['today_income'] as num?)?.toDouble();
+              final todayExpense = (totals['today_expense'] as num?)?.toDouble();
+              final todayTx = (totals['today_transactions_count'] as num?)?.toInt();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Salio la sasa',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: onPrimary.withValues(alpha: 0.85),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '$currency ${balance.toStringAsFixed(0)}',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: onPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (todayIncome != null)
+                        _HeroPill(
+                          label: 'Mapato (leo)',
+                          value: '$currency ${todayIncome.toStringAsFixed(0)}',
+                        ),
+                      if (todayExpense != null)
+                        _HeroPill(
+                          label: 'Matumizi (leo)',
+                          value: '$currency ${todayExpense.toStringAsFixed(0)}',
+                        ),
+                      if (todayTx != null)
+                        _HeroPill(
+                          label: 'Miamala (leo)',
+                          value: todayTx.toString(),
+                        ),
+                      _HeroPill(
+                        label: 'Mapato (mwezi)',
+                        value: '$currency ${monthIncome.toStringAsFixed(0)}',
+                      ),
+                      _HeroPill(
+                        label: 'Matumizi (mwezi)',
+                        value: '$currency ${monthExpense.toStringAsFixed(0)}',
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+            loading: () => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation<Color>(onPrimary.withValues(alpha: 0.9)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Inapakia muhtasari...',
+                    style: theme.textTheme.bodyMedium?.copyWith(color: onPrimary.withValues(alpha: 0.9)),
+                  ),
+                ],
+              ),
+            ),
+            error: (_, __) => Text(
+              'Imeshindikana kupata muhtasari. Jaribu tena.',
+              style: theme.textTheme.bodyMedium?.copyWith(color: onPrimary.withValues(alpha: 0.9)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroPill extends StatelessWidget {
+  const _HeroPill({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onPrimary,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrendsCard extends StatelessWidget {
+  const _TrendsCard({
+    required this.currency,
+    required this.trends,
+  });
+
+  final String currency;
+  final Object? trends;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (trends is! Map) {
+      return const SizedBox.shrink();
+    }
+
+    final m = Map<String, dynamic>.from(trends as Map);
+    final labelsRaw = m['labels'];
+    final incomeRaw = m['income'];
+    final expenseRaw = m['expense'];
+
+    if (labelsRaw is! List || incomeRaw is! List || expenseRaw is! List) {
+      return const SizedBox.shrink();
+    }
+
+    final labels = labelsRaw.map((e) => e.toString()).toList();
+    final income = incomeRaw.map((e) => (e is num) ? e.toDouble() : double.tryParse(e.toString()) ?? 0).toList();
+    final expense = expenseRaw.map((e) => (e is num) ? e.toDouble() : double.tryParse(e.toString()) ?? 0).toList();
+
+    final len = [labels.length, income.length, expense.length].reduce((a, b) => a < b ? a : b);
+    if (len == 0) return const SizedBox.shrink();
+
+    final maxV = <double>[...income.take(len), ...expense.take(len)].fold<double>(0, (p, v) => v > p ? v : p);
+    final safeMax = maxV <= 0 ? 1.0 : maxV;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Mwenendo (Siku 7)',
+                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
+                ),
+                const Spacer(),
+                _LegendDot(color: Colors.green, label: 'Mapato'),
+                const SizedBox(width: 10),
+                _LegendDot(color: Colors.red, label: 'Matumizi'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 120,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(len, (i) {
+                  final inV = income[i];
+                  final exV = expense[i];
+                  final inH = (inV / safeMax).clamp(0, 1);
+                  final exH = (exV / safeMax).clamp(0, 1);
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    height: double.infinity,
+                                    alignment: Alignment.bottomCenter,
+                                    child: FractionallySizedBox(
+                                      heightFactor: inH.toDouble(),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withValues(alpha: 0.75),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Container(
+                                    height: double.infinity,
+                                    alignment: Alignment.bottomCenter,
+                                    child: FractionallySizedBox(
+                                      heightFactor: exH.toDouble(),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withValues(alpha: 0.75),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            labels[i],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Max: $currency ${safeMax.toStringAsFixed(0)}',
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(99),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+      ],
     );
   }
 }

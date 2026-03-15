@@ -6,9 +6,14 @@ import '../../auth/presentation/auth_controller.dart';
 import 'transactions_controller.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
-  const TransactionsScreen({super.key, this.embedded = false});
+  const TransactionsScreen({
+    super.key,
+    this.embedded = false,
+    this.typeFilter,
+  });
 
   final bool embedded;
+  final String? typeFilter;
 
   @override
   ConsumerState<TransactionsScreen> createState() => _TransactionsScreenState();
@@ -83,7 +88,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authStateProvider);
     final currency = (auth.user?['currency'] ?? 'KSh').toString();
-    final dataAsync = ref.watch(transactionsPageProvider(_page));
+    final t = widget.typeFilter?.trim().toLowerCase();
+    final dataAsync = (t == 'income' || t == 'expense')
+        ? ref.watch(transactionsPageFilteredProvider((page: _page, type: t)))
+        : ref.watch(transactionsPageProvider(_page));
 
     final body = dataAsync.when(
           data: (data) {
@@ -92,7 +100,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             final last = (data['last_page'] as num?)?.toInt() ?? current;
 
             if (items.isEmpty) {
-              return const Center(child: Text('No transactions yet.'));
+              return Center(
+                child: Text(
+                  t == 'income'
+                      ? 'Bado hakuna mapato.'
+                      : t == 'expense'
+                          ? 'Bado hakuna matumizi.'
+                          : 'Bado hakuna miamala.',
+                ),
+              );
             }
 
             return Column(
@@ -190,21 +206,19 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       return Stack(
         children: [
           SafeArea(child: body),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: FloatingActionButton(
-              onPressed: () => _openCreateDialog(context),
-              child: const Icon(Icons.add),
-            ),
-          ),
         ],
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions'),
+        title: Text(
+          t == 'income'
+              ? 'Mapato'
+              : t == 'expense'
+                  ? 'Matumizi'
+                  : 'Miamala',
+        ),
         actions: [
           IconButton(
             tooltip: 'Profile',
@@ -215,6 +229,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openCreateDialog(context),
+        heroTag: t == null ? 'tx_fab_all' : 'tx_fab_$t',
         child: const Icon(Icons.add),
       ),
       body: SafeArea(child: body),

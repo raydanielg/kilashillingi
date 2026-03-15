@@ -4,12 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'router.dart';
 
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
+
 class App extends ConsumerWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     const primary = Color(0xFF047857); // emerald-700
     const surface = Color(0xFFF9FAFB); // gray-50
@@ -20,6 +23,11 @@ class App extends ConsumerWidget {
       brightness: Brightness.light,
       surface: surface,
       onSurface: onSurface,
+    );
+
+    final darkColorScheme = ColorScheme.fromSeed(
+      seedColor: primary,
+      brightness: Brightness.dark,
     );
 
     final baseTheme = ThemeData(
@@ -82,10 +90,58 @@ class App extends ConsumerWidget {
       ),
     );
 
+    final darkTheme = ThemeData(
+      useMaterial3: true,
+      colorScheme: darkColorScheme,
+      textTheme: GoogleFonts.figtreeTextTheme(ThemeData(brightness: Brightness.dark).textTheme),
+      cardTheme: CardThemeData(
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: darkColorScheme.outlineVariant.withValues(alpha: 0.55)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkColorScheme.surfaceContainerHighest,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: darkColorScheme.outlineVariant.withValues(alpha: 0.55)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: darkColorScheme.outlineVariant.withValues(alpha: 0.55)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: primary, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(0, 52),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primary,
+          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+        ),
+      ),
+    );
+
     return MaterialApp.router(
       title: 'KilaShillingi',
       debugShowCheckedModeBanner: false,
       theme: baseTheme,
+      darkTheme: darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

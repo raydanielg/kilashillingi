@@ -5,12 +5,18 @@ class TransactionsRepository {
 
   final Dio _dio;
 
-  Future<Map<String, dynamic>> list({int page = 1, int perPage = 20}) async {
+  Future<Map<String, dynamic>> list({
+    int page = 1,
+    int perPage = 20,
+    String? type,
+  }) async {
+    final t = type?.trim().toLowerCase();
     final res = await _dio.get(
       '/v1/transactions',
       queryParameters: {
         'page': page,
         'per_page': perPage,
+        if (t == 'income' || t == 'expense') 'type': t,
       },
     );
     return Map<String, dynamic>.from(res.data as Map);
