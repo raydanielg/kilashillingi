@@ -52,12 +52,35 @@ class DashboardScreen extends ConsumerWidget {
                   final monthIncome = (totals['month_income'] as num?)?.toDouble() ?? 0;
                   final monthExpense = (totals['month_expense'] as num?)?.toDouble() ?? 0;
 
+                  final isCached = data['is_cached'] == true;
+                  final cachedAt = (data['cached_at'] ?? '').toString();
+
                   final recent = (data['recent_transactions'] as List)
                       .map((e) => Map<String, dynamic>.from(e as Map))
                       .toList();
 
                   return ListView(
                     children: [
+                      if (isCached)
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.wifi_off, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    cachedAt.isEmpty
+                                        ? 'Unaona data ya mwisho iliyohifadhiwa (offline).'
+                                        : 'Unaona data ya mwisho iliyohifadhiwa (offline)\nMuda: $cachedAt',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (isCached) const SizedBox(height: 12),
                       _TotalsGrid(
                         currency: currency,
                         income: income,

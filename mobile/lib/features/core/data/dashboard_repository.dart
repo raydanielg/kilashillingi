@@ -1,15 +1,31 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/storage/token_storage.dart';
+
 class DashboardRepository {
-  DashboardRepository(this._dio);
+  DashboardRepository(this._dio, this._tokenStorage);
 
   final Dio _dio;
+  final TokenStorage _tokenStorage;
 
   Future<Map<String, dynamic>> summary() async {
     try {
       final res = await _dio.get('/v1/dashboard/summary');
-      return Map<String, dynamic>.from(res.data as Map);
+      final data = Map<String, dynamic>.from(res.data as Map);
+      await _tokenStorage.writeDashboardSummary({
+        'cached_at': DateTime.now().toIso8601String(),
+        'data': data,
+      });
+      return data;
     } on DioException catch (e) {
+      final cached = await _tokenStorage.readDashboardSummary();
+      if (cached is Map && cached['data'] is Map) {
+        final payload = Map<String, dynamic>.from(cached['data'] as Map);
+        payload['is_cached'] = true;
+        if (cached['cached_at'] != null) payload['cached_at'] = cached['cached_at'];
+        return payload;
+      }
+
       throw Exception(_dioErrorMessage(e));
     }
   }

@@ -9,6 +9,7 @@ class TokenStorage {
 
   static const _tokenKey = 'auth_token';
   static const _userKey = 'auth_user';
+  static const _dashboardSummaryKey = 'dashboard_summary';
 
   Future<void> writeToken(String token) => _storage.write(key: _tokenKey, value: token);
 
@@ -34,4 +35,23 @@ class TokenStorage {
   }
 
   Future<void> deleteUser() => _storage.delete(key: _userKey);
+
+  Future<Map<String, dynamic>?> readDashboardSummary() async {
+    final raw = await _storage.read(key: _dashboardSummaryKey);
+    if (raw == null || raw.isEmpty) return null;
+
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<void> writeDashboardSummary(Map<String, dynamic> summary) async {
+    await _storage.write(key: _dashboardSummaryKey, value: jsonEncode(summary));
+  }
+
+  Future<void> deleteDashboardSummary() => _storage.delete(key: _dashboardSummaryKey);
 }
