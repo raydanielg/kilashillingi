@@ -109,7 +109,7 @@
             </div>
 
             <div class="mt-6">
-                <div class="rounded-2xl bg-white/40 backdrop-blur border border-indigo-200/60 p-3">
+                <div class="rounded-2xl bg-gradient-to-br from-indigo-50/70 to-white/40 backdrop-blur border border-indigo-200/70 p-3">
                     <canvas id="daily-expense-line" height="110"></canvas>
                 </div>
             </div>
@@ -123,7 +123,7 @@
                 </div>
             </div>
             <div class="mt-4">
-                <div class="rounded-2xl bg-white/40 backdrop-blur border border-indigo-200/60 p-3">
+                <div class="rounded-2xl bg-gradient-to-br from-emerald-50/60 to-white/35 backdrop-blur border border-indigo-200/70 p-3">
                     <canvas id="income-expense-bar" height="120"></canvas>
                 </div>
             </div>
@@ -138,7 +138,7 @@
             </div>
 
             <div class="mt-6">
-                <div class="rounded-2xl bg-white/40 backdrop-blur border border-orange-200/60 p-3">
+                <div class="rounded-2xl bg-gradient-to-br from-orange-50/70 to-white/40 backdrop-blur border border-orange-200/70 p-3">
                     <canvas id="expense-pie" height="220"></canvas>
                 </div>
             </div>
@@ -294,6 +294,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
+                    chartAreaBg: { color: 'rgba(99, 102, 241, 0.10)' },
                     tooltip: {
                         backgroundColor: ui.tooltipBg,
                         titleColor: '#ffffff',
@@ -361,6 +362,7 @@
                                 font: { weight: '800' },
                             },
                         },
+                        chartAreaBg: { color: 'rgba(16, 185, 129, 0.08)' },
                         tooltip: {
                             backgroundColor: ui.tooltipBg,
                             titleColor: '#ffffff',
@@ -429,6 +431,7 @@
                             font: { weight: '800' },
                         }
                     },
+                    chartAreaBg: { color: 'rgba(249, 115, 22, 0.10)' },
                     tooltip: {
                         backgroundColor: ui.tooltipBg,
                         titleColor: '#ffffff',
