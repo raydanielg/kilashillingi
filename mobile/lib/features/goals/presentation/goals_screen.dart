@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_controller.dart';
 import 'goals_controller.dart';
 import 'dart:async';
-import 'goal_installments_screen.dart';
 
 double _asDouble(dynamic v, [double fallback = 0]) {
   if (v == null) return fallback;
@@ -13,20 +12,20 @@ double _asDouble(dynamic v, [double fallback = 0]) {
   return double.tryParse(s) ?? fallback;
 }
 
-void _openInstallments(BuildContext context, Map<String, dynamic> goal, String currency) {
-  final id = (goal['id'] as num?)?.toInt() ?? 0;
-  if (id <= 0) return;
-  final title = (goal['title'] ?? '').toString();
+DateTime? _tryParseDate(dynamic v) {
+  if (v == null) return null;
+  if (v is DateTime) return v;
+  final s = v.toString().trim();
+  if (s.isEmpty) return null;
+  return DateTime.tryParse(s);
+}
 
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => GoalInstallmentsScreen(
-        goalId: id,
-        goalTitle: title,
-        currency: currency,
-      ),
-    ),
-  );
+String _fmtDmy(DateTime d) {
+  return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year.toString().padLeft(4, '0')}';
+}
+
+String _fmtHm(DateTime d) {
+  return '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 }
 
 Future<void> _openAddInstallmentSheet(BuildContext context, WidgetRef ref, String currency, Map<String, dynamic> goal) async {
@@ -141,7 +140,7 @@ class _OverallProgressDonut extends StatelessWidget {
                     size: const Size(110, 110),
                     painter: _DonutPainter(
                       percent: p,
-                      trackColor: Colors.black12,
+                      trackColor: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
                       gradientColors: [start, mid, end],
                     ),
                   ),
@@ -180,7 +179,7 @@ class _OverallProgressDonut extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      color: Colors.black12,
+                      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
                     ),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
@@ -283,13 +282,20 @@ String _fmtYmd(DateTime d) {
   return '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }
 
-class GoalsScreen extends ConsumerWidget {
+class GoalsScreen extends ConsumerStatefulWidget {
   const GoalsScreen({super.key, this.embedded = false});
 
   final bool embedded;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GoalsScreen> createState() => _GoalsScreenState();
+}
+
+class _GoalsScreenState extends ConsumerState<GoalsScreen> {
+  int? _expandedGoalId;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final auth = ref.watch(authStateProvider);
     final currency = (auth.user?['currency'] ?? 'KSh').toString();
@@ -343,7 +349,14 @@ class GoalsScreen extends ConsumerWidget {
                       onAddProgress: () => _openAddInstallmentSheet(context, ref, currency, g),
                       onEdit: () => _openEditSheet(context, ref, currency, g),
                       onDelete: () => _confirmDelete(context, ref, g),
-                      onViewInstallments: () => _openInstallments(context, g, currency),
+                      onViewInstallments: () {
+                        final id = (g['id'] as num?)?.toInt();
+                        if (id == null || id <= 0) return;
+                        setState(() {
+                          _expandedGoalId = _expandedGoalId == id ? null : id;
+                        });
+                      },
+                      isExpanded: _expandedGoalId == ((g['id'] as num?)?.toInt() ?? -1),
                     ),
                   )),
           ],
@@ -368,7 +381,7 @@ class GoalsScreen extends ConsumerWidget {
       ),
     );
 
-    if (embedded) return body;
+    if (widget.embedded) return body;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Malengo')),
@@ -448,6 +461,7 @@ class _GoalCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onViewInstallments,
+    required this.isExpanded,
   });
 
   final String currency;
@@ -456,6 +470,7 @@ class _GoalCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onViewInstallments;
+  final bool isExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -467,7 +482,8 @@ class _GoalCard extends StatelessWidget {
     final current = _asDouble(goal['current_amount']);
     final status = (goal['status'] ?? 'active').toString();
 
-    final due = (goal['due_date'] ?? '').toString();
+    final dueDt = _tryParseDate(goal['due_date']);
+    final dueText = dueDt == null ? '-' : _fmtDmy(dueDt);
     final pct = target > 0 ? (current / target).clamp(0, 1).toDouble() : 0.0;
 
     final isDone = status == 'completed' || (target > 0 && current >= target);
@@ -481,6 +497,8 @@ class _GoalCard extends StatelessWidget {
     } else {
       color = theme.colorScheme.primary;
     }
+
+    final goalId = (goal['id'] as num?)?.toInt() ?? 0;
 
     return Card(
       elevation: 0,
@@ -538,7 +556,7 @@ class _GoalCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 minHeight: 10,
                 value: pct,
-                backgroundColor: Colors.black12,
+                backgroundColor: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
                 color: color,
               ),
             ),
@@ -547,7 +565,7 @@ class _GoalCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    due.trim().isEmpty ? 'Mwisho: -' : 'Mwisho: $due',
+                    'Mwisho: $dueText',
                     style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor),
                   ),
                 ),
@@ -561,7 +579,7 @@ class _GoalCard extends StatelessWidget {
                 _MiniIconButton(
                   tooltip: 'Historia ya installments',
                   onTap: onViewInstallments,
-                  icon: Icons.chevron_right,
+                  icon: isExpanded ? Icons.expand_less : Icons.chevron_right,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 2),
@@ -579,8 +597,214 @@ class _GoalCard extends StatelessWidget {
                 ),
               ],
             ),
+
+            if (isExpanded && goalId > 0) ...[
+              const SizedBox(height: 12),
+              _GoalInstallmentsDropdown(goalId: goalId, currency: currency),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _GoalInstallmentsDropdown extends ConsumerWidget {
+  const _GoalInstallmentsDropdown({required this.goalId, required this.currency});
+
+  final int goalId;
+  final String currency;
+
+  double _amount(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+
+    final asyncItems = ref.watch(goalInstallmentsProvider(goalId));
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: primary.withValues(alpha: 0.06),
+        border: Border.all(color: primary.withValues(alpha: 0.12)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.receipt_long_outlined, color: primary, size: 18),
+                const SizedBox(width: 8),
+                Text('Historia ya installments', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
+                const Spacer(),
+                IconButton(
+                  tooltip: 'Refresh',
+                  onPressed: () => ref.invalidate(goalInstallmentsProvider(goalId)),
+                  icon: Icon(Icons.refresh, color: primary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            asyncItems.when(
+              data: (items) {
+                if (items.isEmpty) {
+                  return Text('Bado hakuna installments.', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor));
+                }
+
+                final shown = items.take(6).toList();
+                return Column(
+                  children: [
+                    for (final it in shown) ...[
+                      _InstallmentRow(
+                        currency: currency,
+                        amount: _amount(it['amount']),
+                        date: (it['date'] ?? '').toString(),
+                        createdAt: (it['created_at'] ?? '').toString(),
+                        note: (it['note'] ?? '').toString(),
+                        onDelete: () async {
+                          final id = (it['id'] as num?)?.toInt() ?? 0;
+                          if (id <= 0) return;
+
+                          final ok = await showDialog<bool>(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: const Text('Futa installment?'),
+                                  content: const Text('Una uhakika unataka kufuta installment hii?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(false),
+                                      child: const Text('Ghairi'),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () => Navigator.of(context).pop(true),
+                                      child: const Text('Futa'),
+                                    ),
+                                  ],
+                                ),
+                              ) ??
+                              false;
+
+                          if (!ok) return;
+                          await ref.read(goalsActionsProvider).deleteInstallment(goalId, id);
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (items.length > shown.length)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Zaidi: ${items.length - shown.length}...',
+                          style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor),
+                        ),
+                      ),
+                  ],
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: LinearProgressIndicator(minHeight: 6),
+              ),
+              error: (e, _) => Text('Imeshindikana: $e', style: TextStyle(color: Colors.red.shade700)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InstallmentRow extends StatelessWidget {
+  const _InstallmentRow({
+    required this.currency,
+    required this.amount,
+    required this.date,
+    required this.createdAt,
+    required this.note,
+    required this.onDelete,
+  });
+
+  final String currency;
+  final double amount;
+  final String date;
+  final String createdAt;
+  final String note;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surface = theme.colorScheme.surfaceContainerHighest;
+    final outline = theme.colorScheme.outlineVariant;
+
+    final dateOnly = _tryParseDate(date);
+    final created = _tryParseDate(createdAt);
+
+    String dateLabel;
+    if (created != null) {
+      dateLabel = '${_fmtDmy(created)} ${_fmtHm(created)}';
+    } else if (dateOnly != null) {
+      dateLabel = _fmtDmy(dateOnly);
+    } else {
+      dateLabel = '-';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: outline.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.savings_outlined, color: Colors.green, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$currency ${amount.toStringAsFixed(0)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  dateLabel,
+                  style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor),
+                ),
+                if (note.trim().isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(note, style: theme.textTheme.bodySmall),
+                ],
+              ],
+            ),
+          ),
+          InkWell(
+            onTap: onDelete,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Icon(Icons.delete_outline, color: Colors.red.shade700, size: 20),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -852,7 +1076,7 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
                     due == null
                         ? 'Chagua due date ili uanze countdown'
                         : 'Muda uliobaki: ${_formatCountdown(_remaining)}',
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w900),
                   ),
                 ),
               ],
@@ -894,7 +1118,7 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                color: Colors.white,
+                color: theme.colorScheme.surfaceContainerHighest,
                 border: Border.all(color: primary.withValues(alpha: 0.25)),
               ),
               child: Row(
@@ -904,7 +1128,7 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
                   Expanded(
                     child: Text(
                       due == null ? 'Chagua Due Date (lazima)' : 'Due Date: ${_fmtYmd(due)}',
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w900),
                     ),
                   ),
                   Icon(Icons.chevron_right, color: primary.withValues(alpha: 0.9)),
