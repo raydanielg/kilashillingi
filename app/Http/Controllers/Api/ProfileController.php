@@ -68,6 +68,7 @@ class ProfileController extends Controller
             $user->transactions()->delete();
             $user->budgets()->delete();
             $user->debts()->delete();
+            $user->goals()->delete();
             $user->reminders()->delete();
             $cleared = true;
         }

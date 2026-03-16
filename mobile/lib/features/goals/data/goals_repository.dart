@@ -71,4 +71,30 @@ class GoalsRepository {
   Future<void> delete(int id) async {
     await _dio.delete('/v1/goals/$id');
   }
+
+  Future<Map<String, dynamic>> listInstallments(int goalId) async {
+    final res = await _dio.get('/v1/goals/$goalId/installments');
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<Map<String, dynamic>> addInstallment(
+    int goalId, {
+    required double amount,
+    String? date,
+    String? note,
+  }) async {
+    final res = await _dio.post(
+      '/v1/goals/$goalId/installments',
+      data: {
+        'amount': amount,
+        if (date != null) 'date': date,
+        if (note != null) 'note': note,
+      },
+    );
+    return Map<String, dynamic>.from(res.data as Map);
+  }
+
+  Future<void> deleteInstallment(int installmentId) async {
+    await _dio.delete('/v1/goal-installments/$installmentId');
+  }
 }

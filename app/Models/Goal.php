@@ -28,4 +28,9 @@ class Goal extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function installments()
+    {
+        return $this->hasMany(GoalInstallment::class);
+    }
 }

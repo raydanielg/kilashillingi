@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\GoalController;
+use App\Http\Controllers\Api\GoalInstallmentController;
 use App\Http\Controllers\Api\PasswordResetController;
 
 Route::prefix('v1')->group(function () {
@@ -39,5 +40,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/goals', [GoalController::class, 'store']);
         Route::put('/goals/{goal}', [GoalController::class, 'update']);
         Route::delete('/goals/{goal}', [GoalController::class, 'destroy']);
+
+        Route::get('/goals/{goal}/installments', [GoalInstallmentController::class, 'index']);
+        Route::post('/goals/{goal}/installments', [GoalInstallmentController::class, 'store']);
+        Route::delete('/goal-installments/{installment}', [GoalInstallmentController::class, 'destroy']);
     });
 });

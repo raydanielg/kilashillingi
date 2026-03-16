@@ -21,6 +21,16 @@ final goalsActionsProvider = Provider<GoalsActions>((ref) {
   return GoalsActions(ref.watch(goalsRepositoryProvider), ref);
 });
 
+final goalInstallmentsProvider = FutureProvider.family<List<Map<String, dynamic>>, int>((ref, goalId) async {
+  final repo = ref.watch(goalsRepositoryProvider);
+  final res = await repo.listInstallments(goalId);
+  final raw = res['installments'];
+  if (raw is List) {
+    return raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+  return <Map<String, dynamic>>[];
+});
+
 class GoalsActions {
   GoalsActions(this._repo, this._ref);
 
@@ -75,5 +85,22 @@ class GoalsActions {
   Future<void> delete(int id) async {
     await _repo.delete(id);
     _ref.invalidate(goalsListProvider);
+  }
+
+  Future<void> addInstallment(
+    int goalId, {
+    required double amount,
+    required String date,
+    String? note,
+  }) async {
+    await _repo.addInstallment(goalId, amount: amount, date: date, note: note);
+    _ref.invalidate(goalsListProvider);
+    _ref.invalidate(goalInstallmentsProvider(goalId));
+  }
+
+  Future<void> deleteInstallment(int goalId, int installmentId) async {
+    await _repo.deleteInstallment(installmentId);
+    _ref.invalidate(goalsListProvider);
+    _ref.invalidate(goalInstallmentsProvider(goalId));
   }
 }
