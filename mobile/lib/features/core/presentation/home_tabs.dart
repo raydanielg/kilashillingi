@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/auth_state.dart';
 import '../../budgets/presentation/budgets_screen.dart';
+import '../../goals/presentation/goals_screen.dart';
 import '../../reports/presentation/reports_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
 import '../../transactions/presentation/transactions_screen.dart';
@@ -299,6 +300,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       'Mapato',
       'Matumizi',
       'Bajeti',
+      'Malengo',
       'Ripoti',
     ];
 
@@ -307,6 +309,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       'Orodha ya mapato',
       'Orodha ya matumizi',
       'Mipango ya matumizi',
+      'Malengo na progress',
       'Mchanganuo wa miamala',
     ];
 
@@ -328,6 +331,7 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
       const TransactionsScreen(embedded: true, typeFilter: 'income'),
       const TransactionsScreen(embedded: true, typeFilter: 'expense'),
       const BudgetsScreen(embedded: true),
+      const GoalsScreen(embedded: true),
       const ReportsScreen(embedded: true),
     ];
 
@@ -402,6 +406,11 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
             icon: Icon(Icons.pie_chart_outline),
             selectedIcon: Icon(Icons.pie_chart_rounded, color: Colors.orange),
             label: 'Bajeti',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.track_changes_outlined),
+            selectedIcon: Icon(Icons.track_changes, color: Colors.indigo),
+            label: 'Malengo',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),

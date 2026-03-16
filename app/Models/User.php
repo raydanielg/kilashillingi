@@ -106,6 +106,11 @@ class User extends Authenticatable
         return $this->hasMany(Debt::class);
     }
 
+    public function goals()
+    {
+        return $this->hasMany(Goal::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

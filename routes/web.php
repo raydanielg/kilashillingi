@@ -10,6 +10,7 @@ use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DebtController;
+use App\Http\Controllers\GoalController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\SitemapController;
@@ -95,6 +96,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/debts/{debt}/pay', [DebtController::class, 'pay'])->name('debts.pay');
     Route::post('/debts/{debt}/mark-as-paid', [DebtController::class, 'markAsPaid'])->name('debts.paid');
     Route::delete('/debts/{debt}', [DebtController::class, 'destroy'])->name('debts.destroy');
+
+    Route::get('/goals', [GoalController::class, 'index'])->name('goals.index');
+    Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');
+    Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update');
+    Route::post('/goals/{goal}/progress', [GoalController::class, 'progress'])->name('goals.progress');
+    Route::post('/goals/{goal}/status', [GoalController::class, 'toggleStatus'])->name('goals.status');
+    Route::delete('/goals/{goal}', [GoalController::class, 'destroy'])->name('goals.destroy');
 });
 
 Route::middleware('auth')->group(function () {

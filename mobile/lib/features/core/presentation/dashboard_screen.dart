@@ -259,7 +259,7 @@ class _DashboardError extends StatelessWidget {
   }
 }
 
-class _HeroWelcomeCard extends StatelessWidget {
+class _HeroWelcomeCard extends StatefulWidget {
   const _HeroWelcomeCard({
     required this.name,
     required this.currency,
@@ -271,12 +271,44 @@ class _HeroWelcomeCard extends StatelessWidget {
   final AsyncValue<Map<String, dynamic>> summaryAsync;
 
   @override
+  State<_HeroWelcomeCard> createState() => _HeroWelcomeCardState();
+}
+
+class _HeroWelcomeCardState extends State<_HeroWelcomeCard> {
+  bool _showBalance = false;
+  bool _revealLoading = false;
+
+  Future<void> _toggleBalance() async {
+    if (_revealLoading) return;
+
+    if (_showBalance) {
+      setState(() {
+        _showBalance = false;
+        _revealLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _revealLoading = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+
+    setState(() {
+      _showBalance = true;
+      _revealLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
     final onPrimary = theme.colorScheme.onPrimary;
 
-    final displayName = name.trim().isEmpty ? 'Mtumiaji' : name.trim();
+    final displayName = widget.name.trim().isEmpty ? 'Mtumiaji' : widget.name.trim();
 
     return Container(
       width: double.infinity,
@@ -320,35 +352,54 @@ class _HeroWelcomeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          summaryAsync.when(
+          widget.summaryAsync.when(
             data: (data) {
               final totalsRaw = data['totals'];
               final totals = totalsRaw is Map ? Map<String, dynamic>.from(totalsRaw) : <String, dynamic>{};
               final balance = (totals['balance'] as num?)?.toDouble() ?? 0;
-              final monthIncome = (totals['month_income'] as num?)?.toDouble() ?? 0;
-              final monthExpense = (totals['month_expense'] as num?)?.toDouble() ?? 0;
-              final todayIncome = (totals['today_income'] as num?)?.toDouble();
-              final todayExpense = (totals['today_expense'] as num?)?.toDouble();
-              final todayTx = (totals['today_transactions_count'] as num?)?.toInt();
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Salio la sasa',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: onPrimary.withValues(alpha: 0.85),
-                      fontWeight: FontWeight.w800,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Salio la sasa',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: onPrimary.withValues(alpha: 0.85),
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _toggleBalance,
+                        borderRadius: BorderRadius.circular(999),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            _showBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 20,
+                            color: onPrimary.withValues(alpha: 0.95),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '$currency ${balance.toStringAsFixed(0)}',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: onPrimary,
-                      fontWeight: FontWeight.w900,
+                  const SizedBox(height: 8),
+                  if (_revealLoading)
+                    const _BalanceSkeleton()
+                  else
+                    Text(
+                      _showBalance
+                          ? '${widget.currency} ${balance.toStringAsFixed(0)}'
+                          : '${widget.currency} ••••••',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: onPrimary,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: _showBalance ? 0 : 1.5,
+                      ),
                     ),
-                  ),
                 ],
               );
             },
@@ -379,6 +430,63 @@ class _HeroWelcomeCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _BalanceSkeleton extends StatefulWidget {
+  const _BalanceSkeleton();
+
+  @override
+  State<_BalanceSkeleton> createState() => _BalanceSkeletonState();
+}
+
+class _BalanceSkeletonState extends State<_BalanceSkeleton> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final a = 0.18 + (_controller.value * 0.18);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 26,
+              width: 180,
+              decoration: BoxDecoration(
+                color: onPrimary.withValues(alpha: a),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 14,
+              width: 120,
+              decoration: BoxDecoration(
+                color: onPrimary.withValues(alpha: a * 0.85),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

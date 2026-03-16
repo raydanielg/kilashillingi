@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\BudgetController;
+use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\PasswordResetController;
 
 Route::prefix('v1')->group(function () {
@@ -33,5 +34,10 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/budgets/current', [BudgetController::class, 'current']);
         Route::put('/budgets', [BudgetController::class, 'upsert']);
+
+        Route::get('/goals', [GoalController::class, 'index']);
+        Route::post('/goals', [GoalController::class, 'store']);
+        Route::put('/goals/{goal}', [GoalController::class, 'update']);
+        Route::delete('/goals/{goal}', [GoalController::class, 'destroy']);
     });
 });
