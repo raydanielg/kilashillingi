@@ -36,6 +36,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/budgets/current', [BudgetController::class, 'current']);
         Route::put('/budgets', [BudgetController::class, 'upsert']);
+        Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy']);
 
         Route::get('/goals', [GoalController::class, 'index']);
         Route::post('/goals', [GoalController::class, 'store']);

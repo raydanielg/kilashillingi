@@ -20,4 +20,8 @@ class BudgetsRepository {
     });
     return Map<String, dynamic>.from(res.data as Map);
   }
+
+  Future<void> delete(int id) async {
+    await _dio.delete('/v1/budgets/$id');
+  }
 }

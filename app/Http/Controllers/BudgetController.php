@@ -82,4 +82,15 @@ class BudgetController extends Controller
 
         return redirect()->route('budget.index')->with('success', 'Bajeti imehifadhiwa vizuri.');
     }
+
+    public function destroy(Budget $budget)
+    {
+        if ($budget->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $budget->delete();
+
+        return redirect()->route('budget.index')->with('success', 'Bajeti imefutwa.');
+    }
 }

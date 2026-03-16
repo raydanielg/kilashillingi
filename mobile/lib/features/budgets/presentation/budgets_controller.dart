@@ -26,4 +26,9 @@ class BudgetsActions {
     await _repo.upsert(category: category, amount: amount);
     _ref.invalidate(currentBudgetsProvider);
   }
+
+  Future<void> delete(int id) async {
+    await _repo.delete(id);
+    _ref.invalidate(currentBudgetsProvider);
+  }
 }

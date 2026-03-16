@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Budget;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -96,6 +97,19 @@ class BudgetController extends Controller
 
         return response()->json([
             'budget' => $budget,
+        ]);
+    }
+
+    public function destroy(Request $request, Budget $budget): JsonResponse
+    {
+        if ((int) $budget->user_id !== (int) $request->user()->id) {
+            return response()->json(['message' => 'Not found.'], 404);
+        }
+
+        $budget->delete();
+
+        return response()->json([
+            'message' => 'Deleted.',
         ]);
     }
 }

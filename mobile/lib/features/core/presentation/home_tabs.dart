@@ -57,6 +57,120 @@ class _QuickAddGrid extends StatelessWidget {
   }
 }
 
+class _FabHorizontalMenu extends StatelessWidget {
+  const _FabHorizontalMenu({
+    required this.onIncome,
+    required this.onExpense,
+    required this.onBudget,
+    required this.onGoals,
+  });
+
+  final VoidCallback onIncome;
+  final VoidCallback onExpense;
+  final VoidCallback onBudget;
+  final VoidCallback onGoals;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surface = theme.colorScheme.surfaceContainerHighest;
+    final outline = theme.colorScheme.outlineVariant.withValues(alpha: 0.35);
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: outline),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _FabMenuItem(
+            label: 'Mapato',
+            icon: Icons.add_chart,
+            color: Colors.green,
+            onTap: onIncome,
+          ),
+          const SizedBox(width: 8),
+          _FabMenuItem(
+            label: 'Matumizi',
+            icon: Icons.payments_outlined,
+            color: Colors.red,
+            onTap: onExpense,
+          ),
+          const SizedBox(width: 8),
+          _FabMenuItem(
+            label: 'Bajeti',
+            icon: Icons.pie_chart_outline,
+            color: Colors.orange,
+            onTap: onBudget,
+          ),
+          const SizedBox(width: 8),
+          _FabMenuItem(
+            label: 'Malengo',
+            icon: Icons.track_changes_outlined,
+            color: Colors.indigo,
+            onTap: onGoals,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FabMenuItem extends StatelessWidget {
+  const _FabMenuItem({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _QuickAddItem extends StatelessWidget {
   const _QuickAddItem({
     required this.label,
@@ -179,10 +293,20 @@ class HomeTabs extends ConsumerStatefulWidget {
 
 class _HomeTabsState extends ConsumerState<HomeTabs> {
   int _index = 0;
+  bool _fabOpen = false;
 
   void _goTo(int index) {
     if (_index == index) return;
     setState(() => _index = index);
+  }
+
+  void _toggleFabMenu() {
+    setState(() => _fabOpen = !_fabOpen);
+  }
+
+  void _closeFabMenu() {
+    if (!_fabOpen) return;
+    setState(() => _fabOpen = false);
   }
 
   Future<void> _openQuickAddSheet() async {
@@ -241,47 +365,101 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
     final now = DateTime.now();
     final date = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-    final ok = await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text(type == 'income' ? 'Ongeza Mapato' : 'Ongeza Matumizi'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        final theme = Theme.of(context);
+        final primary = theme.colorScheme.primary;
+        final isIncome = type == 'income';
+        final color = isIncome ? Colors.green : Colors.red;
+
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  TextField(
-                    controller: amountCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Kiasi'),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: color.withValues(alpha: 0.22)),
+                    ),
+                    child: Icon(isIncome ? Icons.add_chart : Icons.payments_outlined, color: color),
                   ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: descCtrl,
-                    decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Maelezo (si lazima)'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isIncome ? 'Ongeza Mapato' : 'Ongeza Matumizi',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                        ),
+                        Text(
+                          'Tarehe: $date',
+                          style: theme.textTheme.labelSmall?.copyWith(color: theme.hintColor),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text('Tarehe: $date'),
+                  Icon(Icons.lock_clock_outlined, color: primary.withValues(alpha: 0.7)),
                 ],
               ),
-              actions: [
-                TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Ghairi')),
-                FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Hifadhi')),
-              ],
-            );
-          },
-        ) ??
-        false;
+              const SizedBox(height: 12),
+              TextField(
+                controller: amountCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: 'Kiasi',
+                  prefixIcon: Icon(Icons.attach_money, color: color),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: descCtrl,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Maelezo (hiari)',
+                  prefixIcon: Icon(Icons.notes_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () async {
+                  final amount = double.tryParse(amountCtrl.text.trim());
+                  if (amount == null) return;
 
-    if (!ok) return;
-    final amount = double.tryParse(amountCtrl.text.trim());
-    if (amount == null) return;
+                  await ref.read(transactionsActionsProvider).create(
+                        type: type,
+                        amount: amount,
+                        date: date,
+                        description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+                      );
 
-    await ref.read(transactionsActionsProvider).create(
-          type: type,
-          amount: amount,
-          date: date,
-          description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.check_circle_outline),
+                label: Text(isIncome ? 'Hifadhi Mapato' : 'Hifadhi Matumizi'),
+                style: FilledButton.styleFrom(backgroundColor: color),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
         );
+      },
+    );
   }
 
   @override
@@ -341,47 +519,101 @@ class _HomeTabsState extends ConsumerState<HomeTabs> {
     );
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Header(
-              title: titles[_index],
-              subtitle: subtitles[_index],
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: isDark ? 'Badili kuwa light mode' : 'Badili kuwa dark mode',
-                    onPressed: () {
-                      ref.read(themeModeProvider.notifier).state = isDark ? ThemeMode.light : ThemeMode.dark;
-                    },
-                    icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                Header(
+                  title: titles[_index],
+                  subtitle: subtitles[_index],
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: isDark ? 'Badili kuwa light mode' : 'Badili kuwa dark mode',
+                        onPressed: () {
+                          ref.read(themeModeProvider.notifier).state = isDark ? ThemeMode.light : ThemeMode.dark;
+                        },
+                        icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+                      ),
+                      const SizedBox(width: 4),
+                      _UserAvatar(
+                        avatarUrl: avatarUrl,
+                        initials: initials,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ProfileScreen(embedded: false)),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  _UserAvatar(
-                    avatarUrl: avatarUrl,
-                    initials: initials,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ProfileScreen(embedded: false)),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: body,
+                ),
+              ],
+            ),
+          ),
+          if (_fabOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: _closeFabMenu,
+                child: Container(color: Colors.black.withValues(alpha: 0.25)),
+              ),
+            ),
+          if (_index != 3)
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  AnimatedOpacity(
+                    opacity: _fabOpen ? 1 : 0,
+                    duration: const Duration(milliseconds: 160),
+                    child: IgnorePointer(
+                      ignoring: !_fabOpen,
+                      child: AnimatedScale(
+                        scale: _fabOpen ? 1 : 0.95,
+                        duration: const Duration(milliseconds: 160),
+                        child: _FabHorizontalMenu(
+                          onIncome: () async {
+                            _closeFabMenu();
+                            _goTo(1);
+                            await Future<void>.delayed(const Duration(milliseconds: 250));
+                            await _openQuickTransactionDialog(type: 'income');
+                          },
+                          onExpense: () async {
+                            _closeFabMenu();
+                            _goTo(2);
+                            await Future<void>.delayed(const Duration(milliseconds: 250));
+                            await _openQuickTransactionDialog(type: 'expense');
+                          },
+                          onBudget: () {
+                            _closeFabMenu();
+                            _goTo(3);
+                          },
+                          onGoals: () {
+                            _closeFabMenu();
+                            _goTo(4);
+                          },
+                        ),
+                      ),
                     ),
+                  ),
+                  const SizedBox(height: 10),
+                  FloatingActionButton(
+                    onPressed: _toggleFabMenu,
+                    heroTag: 'home_tabs_fab',
+                    child: Icon(_fabOpen ? Icons.close : Icons.add),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1),
-            Expanded(
-              child: body,
-            ),
-          ],
-        ),
+        ],
       ),
-      floatingActionButton: _index == 3
-          ? null
-          : FloatingActionButton(
-              onPressed: _openQuickAddSheet,
-              heroTag: 'home_tabs_fab',
-              child: const Icon(Icons.add),
-            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _goTo,
