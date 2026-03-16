@@ -109,7 +109,9 @@
             </div>
 
             <div class="mt-6">
-                <canvas id="daily-expense-line" height="110"></canvas>
+                <div class="rounded-2xl bg-white/40 backdrop-blur border border-indigo-200/60 p-3">
+                    <canvas id="daily-expense-line" height="110"></canvas>
+                </div>
             </div>
 
             <div class="mt-6">
@@ -121,7 +123,9 @@
                 </div>
             </div>
             <div class="mt-4">
-                <canvas id="income-expense-bar" height="120"></canvas>
+                <div class="rounded-2xl bg-white/40 backdrop-blur border border-indigo-200/60 p-3">
+                    <canvas id="income-expense-bar" height="120"></canvas>
+                </div>
             </div>
         </div>
 
@@ -134,7 +138,9 @@
             </div>
 
             <div class="mt-6">
-                <canvas id="expense-pie" height="220"></canvas>
+                <div class="rounded-2xl bg-white/40 backdrop-blur border border-orange-200/60 p-3">
+                    <canvas id="expense-pie" height="220"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -234,6 +240,32 @@
         const pieEl = document.getElementById('expense-pie');
         if (!lineEl || !pieEl || !window.Chart) return;
 
+        const ui = {
+            text: '#334155',
+            muted: '#64748b',
+            grid: 'rgba(15, 23, 42, 0.08)',
+            tooltipBg: 'rgba(15, 23, 42, 0.92)',
+        };
+
+        Chart.defaults.color = ui.text;
+        Chart.defaults.font.family = "Plus Jakarta Sans, ui-sans-serif, system-ui";
+        Chart.defaults.font.weight = '700';
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+        Chart.defaults.plugins.legend.labels.pointStyle = 'rectRounded';
+
+        const chartAreaBg = {
+            id: 'chartAreaBg',
+            beforeDraw(chart, args, opts) {
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return;
+                const { left, top, right, bottom } = chartArea;
+                ctx.save();
+                ctx.fillStyle = opts?.color || 'rgba(255, 255, 255, 0.25)';
+                ctx.fillRect(left, top, right - left, bottom - top);
+                ctx.restore();
+            }
+        };
+
         const lineLabels = @json($dailyExpenseLabels ?? []);
         const lineData = @json($dailyExpenseData ?? []);
         const incomeData = @json($dailyIncomeData ?? []);
@@ -263,6 +295,11 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: ui.tooltipBg,
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderWidth: 1,
                         callbacks: {
                             label: function (ctx) {
                                 const v = Number(ctx.parsed.y || 0);
@@ -274,17 +311,18 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#6b7280', font: { weight: '700' } },
+                        ticks: { color: ui.muted, font: { weight: '800' } },
                     },
                     y: {
-                        grid: { color: 'rgba(107, 114, 128, 0.12)' },
+                        grid: { color: ui.grid },
                         ticks: {
-                            color: '#6b7280',
+                            color: ui.muted,
                             callback: (v) => ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + Number(v).toLocaleString(),
                         },
                     }
                 }
-            }
+            },
+            plugins: [chartAreaBg],
         });
 
         const barEl = document.getElementById('income-expense-bar');
@@ -319,11 +357,16 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#111827',
+                                color: ui.text,
                                 font: { weight: '800' },
                             },
                         },
                         tooltip: {
+                            backgroundColor: ui.tooltipBg,
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: 'rgba(255,255,255,0.15)',
+                            borderWidth: 1,
                             callbacks: {
                                 label: function (ctx) {
                                     const v = Number(ctx.parsed.y || 0);
@@ -335,17 +378,18 @@
                     scales: {
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#6b7280', font: { weight: '700' } },
+                            ticks: { color: ui.muted, font: { weight: '800' } },
                         },
                         y: {
-                            grid: { color: 'rgba(107, 114, 128, 0.12)' },
+                            grid: { color: ui.grid },
                             ticks: {
-                                color: '#6b7280',
+                                color: ui.muted,
                                 callback: (v) => ({{ json_encode(Auth::user()->currency ?? 'TSh') }}) + ' ' + Number(v).toLocaleString(),
                             },
                         },
                     },
                 },
+                plugins: [chartAreaBg],
             });
         }
 
@@ -381,11 +425,16 @@
                         labels: {
                             boxWidth: 10,
                             boxHeight: 10,
-                            color: '#111827',
+                            color: ui.text,
                             font: { weight: '800' },
                         }
                     },
                     tooltip: {
+                        backgroundColor: ui.tooltipBg,
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderWidth: 1,
                         callbacks: {
                             label: function (ctx) {
                                 const v = Number(ctx.parsed || 0);
@@ -394,7 +443,8 @@
                         }
                     }
                 }
-            }
+            },
+            plugins: [chartAreaBg],
         });
     })();
 </script>
