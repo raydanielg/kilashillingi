@@ -49,6 +49,7 @@
                             </td>
                             <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
                             <td>
+                                <a href="{{ route('admin.users.show', $user) }}" class="btn btn-xs btn-primary" title="View Details"><i class="fas fa-eye"></i></a>
                                 <button class="btn btn-xs btn-info" title="Hariri"><i class="fas fa-edit"></i></button>
                                 <button class="btn btn-xs btn-danger" title="Funga Akaunti"><i class="fas fa-ban"></i></button>
                             </td>

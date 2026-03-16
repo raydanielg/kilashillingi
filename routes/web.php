@@ -43,6 +43,7 @@ use App\Http\Controllers\Admin\AccountController;
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
     Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
