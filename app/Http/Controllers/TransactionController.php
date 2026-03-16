@@ -52,4 +52,19 @@ class TransactionController extends Controller
 
         return redirect()->back()->with('success', __('messages.save_success'));
     }
+
+    public function destroy(Request $request, Transaction $transaction)
+    {
+        if ($transaction->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $transaction->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Deleted.']);
+        }
+
+        return redirect()->back()->with('success', __('messages.delete_success'));
+    }
 }
