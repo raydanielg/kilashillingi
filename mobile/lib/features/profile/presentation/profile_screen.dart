@@ -98,111 +98,178 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             final displayName = _nameCtrl.text.trim().isNotEmpty ? _nameCtrl.text.trim() : (user['name'] ?? '').toString();
             final displayEmail = _emailCtrl.text.trim().isNotEmpty ? _emailCtrl.text.trim() : (user['email'] ?? '').toString();
             final displayPhone = _phoneCtrl.text.trim().isNotEmpty ? _phoneCtrl.text.trim() : (user['phone'] ?? '').toString();
+            final displayCurrency = (_currency ?? oldCurrency).toString();
+
+            final theme = Theme.of(context);
+            final primary = theme.colorScheme.primary;
+            final surface = theme.colorScheme.surfaceContainerHighest;
+            final outline = theme.colorScheme.outlineVariant.withValues(alpha: 0.35);
+            final hint = theme.hintColor;
 
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 34,
-                          backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-                          backgroundImage: (avatar != null && avatar.startsWith('http')) ? NetworkImage(avatar) : null,
-                          child: (avatar == null || !avatar.startsWith('http'))
-                              ? Text(
-                                  _initials(displayName.isNotEmpty ? displayName : displayEmail),
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.w900,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
-                                )
-                              : null,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                displayName.isEmpty ? 'User' : displayName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-                              ),
-                              const SizedBox(height: 2),
-                              if (displayPhone.isNotEmpty)
-                                Text(
-                                  displayPhone,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
-                                ),
-                              if (displayEmail.isNotEmpty)
-                                Text(
-                                  displayEmail,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54),
-                                ),
-                            ],
-                          ),
-                        ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: outline),
+                    gradient: LinearGradient(
+                      colors: [
+                        primary.withValues(alpha: 0.12),
+                        Colors.purple.withValues(alpha: 0.08),
+                        Colors.orange.withValues(alpha: 0.06),
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 36,
+                        backgroundColor: primary.withValues(alpha: 0.12),
+                        backgroundImage: (avatar != null && avatar.startsWith('http')) ? NetworkImage(avatar) : null,
+                        child: (avatar == null || !avatar.startsWith('http'))
+                            ? Text(
+                                _initials(displayName.isNotEmpty ? displayName : displayEmail),
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: primary,
+                                    ),
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName.isEmpty ? 'User' : displayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                            ),
+                            const SizedBox(height: 4),
+                            if (displayEmail.isNotEmpty)
+                              Row(
+                                children: [
+                                  Icon(Icons.email_outlined, size: 16, color: primary.withValues(alpha: 0.9)),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      displayEmail,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.bodySmall?.copyWith(color: hint),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            if (displayPhone.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(Icons.phone_iphone, size: 16, color: primary.withValues(alpha: 0.9)),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      displayPhone,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.bodySmall?.copyWith(color: hint),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                _InfoChip(icon: Icons.currency_exchange, label: displayCurrency, color: primary),
+                                _InfoChip(icon: Icons.verified_user_outlined, label: 'Akaunti', color: Colors.indigo),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 14),
                 Text(
                   'Taarifa binafsi',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 10),
-                TextField(
-                  controller: _nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Jina', prefixIcon: Icon(Icons.person_outline)),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: _phoneCtrl,
-                  keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Simu (mf 07XXXXXXXX)', prefixIcon: Icon(Icons.phone_iphone)),
-                ),
-                const SizedBox(height: 14),
-                currenciesAsync.when(
-                  data: (data) {
-                    final available = (data['available'] as List).map((e) => e.toString()).toList();
-                    final def = (data['default'] ?? 'KSh').toString();
-                    _currency ??= oldCurrency.isNotEmpty ? oldCurrency : def;
-
-                    return DropdownButtonFormField<String>(
-                      initialValue: _currency,
-                      items: available.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                      onChanged: _saving
-                          ? null
-                          : (v) {
-                              setState(() {
-                                _currency = v;
-                              });
-                            },
-                      decoration: const InputDecoration(labelText: 'Currency', prefixIcon: Icon(Icons.currency_exchange)),
-                    );
-                  },
-                  loading: () => const SizedBox(
-                    height: 56,
-                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: surface,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: outline),
                   ),
-                  error: (e, _) => Text('Failed to load currencies: $e'),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _nameCtrl,
+                        decoration: const InputDecoration(labelText: 'Jina', prefixIcon: Icon(Icons.person_outline)),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: _emailCtrl,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: _phoneCtrl,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(labelText: 'Simu (mf 07XXXXXXXX)', prefixIcon: Icon(Icons.phone_iphone)),
+                      ),
+                      const SizedBox(height: 14),
+                      currenciesAsync.when(
+                        data: (data) {
+                          final available = (data['available'] as List).map((e) => e.toString()).toList();
+                          final def = (data['default'] ?? 'KSh').toString();
+                          _currency ??= oldCurrency.isNotEmpty ? oldCurrency : def;
+
+                          return DropdownButtonFormField<String>(
+                            initialValue: _currency,
+                            items: available.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                            onChanged: _saving
+                                ? null
+                                : (v) {
+                                    setState(() {
+                                      _currency = v;
+                                    });
+                                  },
+                            decoration: const InputDecoration(labelText: 'Currency', prefixIcon: Icon(Icons.currency_exchange)),
+                          );
+                        },
+                        loading: () => const SizedBox(
+                          height: 56,
+                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        ),
+                        error: (e, _) => Text('Failed to load currencies: $e'),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton.tonalIcon(
+                    onPressed: _saving ? null : () => context.push('/settings'),
+                    icon: const Icon(Icons.settings_outlined),
+                    label: const Text('Settings'),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -250,6 +317,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         : const Text('Hifadhi mabadiliko'),
                   ),
                 ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton.tonalIcon(
+                    onPressed: _saving
+                        ? null
+                        : () async {
+                            await ref.read(authStateProvider.notifier).logout();
+                            if (context.mounted) context.go('/login');
+                          },
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Logout'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.red.withValues(alpha: 0.12),
+                      foregroundColor: Colors.red.shade700,
+                    ),
+                  ),
+                ),
               ],
             );
           },
@@ -264,18 +350,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        actions: [
-          IconButton(
-            tooltip: 'Logout',
-            onPressed: () async {
-              await ref.read(authStateProvider.notifier).logout();
-              if (context.mounted) context.go('/login');
-            },
-            icon: const Icon(Icons.logout),
+      ),
+      body: SafeArea(child: body),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.icon, required this.label, required this.color});
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900),
           ),
         ],
       ),
-      body: SafeArea(child: body),
     );
   }
 }

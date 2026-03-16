@@ -71,4 +71,19 @@ class DebtController extends Controller
 
         return redirect()->back()->with('success', __('messages.paid_success'));
     }
+
+    public function destroy(Request $request, Debt $debt)
+    {
+        if ($debt->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $debt->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Debt deleted successfully.']);
+        }
+
+        return redirect()->route('debts.index')->with('success', 'Deni limefutwa vizuri.');
+    }
 }

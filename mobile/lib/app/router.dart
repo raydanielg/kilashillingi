@@ -8,6 +8,7 @@ import '../features/core/presentation/dashboard_screen.dart';
 import '../features/core/presentation/splash_screen.dart';
 import '../features/core/presentation/home_tabs.dart';
 import '../features/profile/presentation/profile_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/transactions/presentation/transactions_screen.dart';
 import '../features/budgets/presentation/budgets_screen.dart';
 
@@ -38,6 +39,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: '/transactions',
